@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baumsicherheitsbeurteilung – SVLFG · STD</title>
+<title>GBU</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GBU">
@@ -453,7 +453,7 @@ async function buildPDF(fd,pl){
   const chk=(items)=>{for(let i=0;i<items.length;i+=2){if(y>274){doc.addPage();y=14;}doc.setFontSize(8);[items[i],items[i+1]].forEach((it,col)=>{if(!it)return;const x=M+col*(CW/2);const on=fd.checks&&fd.checks[it.k];doc.setFont('helvetica',on?'bold':'normal');doc.setTextColor(on?15:160,on?110:160,on?86:160);doc.text((on?'[X] ':'[ ] ')+(LABELS[it.k]||it.k),x,y);});y+=4.5;}y+=1;};
   const sec=(t)=>{if(y>268){doc.addPage();y=14;}y+=2;doc.setFillColor(225,245,238);doc.rect(M,y-4,CW,7,'F');doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(15,110,86);doc.text(t,M+2,y);doc.setTextColor(30,30,30);y+=6;};
   const line=(lbl,val)=>{if(y>274){doc.addPage();y=14;}doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(100,100,100);doc.text(lbl+':',M,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(val||'–',CW-42);doc.text(ls,M+42,y);y+=ls.length*4.2+0.8;};
-  doc.setFillColor(29,158,117);doc.rect(0,0,210,17,'F');doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);doc.text('Einsatzbezogene Gefährdungsermittlung / Baumsicherheitsbeurteilung',M,8);doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.text('Sicherheitstechnischer Dienst · SVLFG',M,13);y=22;
+  doc.setFillColor(29,158,117);doc.rect(0,0,210,17,'F');doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);doc.text('Einsatzbezogene Gefährdungsermittlung / Baumsicherheitsbeurteilung',M,8);doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.text('Digitale Gefährdungsermittlung',M,13);y=22;
   sec('EINSATZ');line('Einsatzort',fd.einsatzort);line('Datum',fd.datum?new Date(fd.datum).toLocaleDateString('de-DE'):'');line('Aufsichtsführender',fd.aufseher);line('Dauer',(fd.vonZeit||'–')+' bis '+(fd.bisZeit||'–'));line('Einsatztyp',fd.einsatzTyp);
   sec('PERSONAL');(fd.persons||[]).filter(p=>p.name).forEach(p=>line(p.name,p.roles.join(', ')||'–'));
   chk([{k:'aufgabe_besprochen'},{k:'bodenperson'},{k:'personal_eingeteilt'},{k:'sicherungsposten'},{k:'kommunikation'},{k:'gesundheit'},{k:'erfahrung'}]);
