@@ -1,7 +1,7 @@
 {
   "name": "Baumsicherheitsbeurteilung",
   "short_name": "GBU",
-  "description": "Digitale Gefährdungsermittlung und Baumsicherheitsbeurteilung – SVLFG STD",
+  "description": "Digitale Gefährdungsermittlung und Baumsicherheitsbeurteilung für Baumpfleger*innen",
   "start_url": "/GBU/app",
   "display": "standalone",
   "background_color": "#ffffff",
