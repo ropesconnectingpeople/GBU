@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baumsicherheitsbeurteilung – SVLFG · STD</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GBU">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1D9E75">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--ct:#111827;--ct2:#6b7280;--cb:#ffffff;--cb2:#f9fafb;--cbr:#e5e7eb;--cbr2:#d1d5db;--rm:8px;--rl:12px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
+@media(prefers-color-scheme:dark){:root{--ct:#f3f4f6;--ct2:#9ca3af;--cb:#111827;--cb2:#1f2937;--cbr:#374151;--cbr2:#4b5563}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--cb);color:var(--ct);min-height:100vh;padding:0;margin:0}
+.wrap{max-width:680px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.app-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:.875rem;margin-bottom:.875rem;border-bottom:.5px solid var(--cbr)}
+.ah-title{font-size:15px;font-weight:600;color:var(--ct)}
+.ah-sub{font-size:11px;color:var(--ct2);margin-top:2px}
+.pbar{display:flex;gap:3px;margin-bottom:1.25rem}
+.pbar .s{flex:1;height:3px;border-radius:2px;background:var(--cbr);transition:background .3s}
+.pbar .s.done{background:#1D9E75}.pbar .s.active{background:#5DCAA5}
+.sec{display:none}.sec.active{display:block}
+.sh{margin-bottom:1rem}.sh h2{font-size:16px;font-weight:500;color:var(--ct);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.sh p{font-size:12px;color:var(--ct2)}
+.fl{font-size:11px;font-weight:500;color:var(--ct2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:block;margin-top:.875rem}
+.fl:first-child{margin-top:0}
+input[type=text],input[type=date],input[type=time],select,textarea{width:100%;padding:7px 9px;font-size:13px;border:.5px solid var(--cbr);border-radius:var(--rm);background:var(--cb);color:var(--ct);font-family:var(--font)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 2px rgba(29,158,117,.12)}
+textarea{resize:vertical;min-height:55px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:480px){.r2,.r3{grid-template-columns:1fr}}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:4px}
+@media(max-width:400px){.cg{grid-template-columns:1fr}}
+.ci{display:flex;align-items:center;gap:7px;padding:7px 9px;border:.5px solid var(--cbr);border-radius:var(--rm);cursor:pointer;transition:all .15s;user-select:none}
+.ci:hover{border-color:#5DCAA5;background:var(--cb2)}
+.ci.on{border-color:#1D9E75;background:#E1F5EE}
+.cbox{width:15px;height:15px;border:1.5px solid var(--cbr2);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.ci.on .cbox{background:#1D9E75;border-color:#1D9E75}
+.cicon{color:white;font-size:10px;display:none}
+.ci.on .cicon{display:block}
+.clbl{font-size:12px;color:var(--ct);line-height:1.25}
+.rg{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.ri{display:flex;align-items:center;gap:5px;padding:5px 10px;border:.5px solid var(--cbr);border-radius:var(--rm);cursor:pointer;transition:all .15s;user-select:none;font-size:12px;color:var(--ct)}
+.ri:hover{border-color:#5DCAA5}.ri.sel{border-color:#1D9E75;background:#E1F5EE;color:#0F6E56;font-weight:500}
+.ri input{display:none}
+.pr{display:grid;grid-template-columns:2fr repeat(5,1fr) 20px;gap:5px;align-items:center;margin-bottom:5px}
+.ch{font-size:10px;color:var(--ct2);text-align:center;font-weight:500}
+.pname{font-size:12px;padding:5px 7px;border:.5px solid var(--cbr);border-radius:var(--rm);background:var(--cb);color:var(--ct);font-family:var(--font);width:100%}
+.rchk{width:18px;height:18px;border:1.5px solid var(--cbr2);border-radius:3px;cursor:pointer;margin:0 auto;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.rchk.on{background:#1D9E75;border-color:#1D9E75}
+.rchk.on::after{content:'✓';font-size:10px;color:white}
+.sso{padding:6px 12px;border:.5px solid var(--cbr);border-radius:var(--rm);cursor:pointer;font-size:12px;transition:all .15s;color:var(--ct)}
+.sso:hover{border-color:var(--cbr2)}
+.sso[data-v=ja].sel{background:#E1F5EE;border-color:#1D9E75;color:#0F6E56;font-weight:500}
+.sso[data-v=nein].sel{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D;font-weight:500}
+.sso[data-v=untersuchung].sel{background:#FAEEDA;border-color:#EF9F27;color:#854F0B;font-weight:500}
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:1rem;border-top:.5px solid var(--cbr);gap:8px}
+.btn{padding:7px 14px;border-radius:var(--rm);font-size:12px;font-family:var(--font);cursor:pointer;border:.5px solid var(--cbr2);background:var(--cb);color:var(--ct);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--cb2)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-g{background:#1D9E75;border-color:#1D9E75;color:white}.btn-g:hover{background:#0F6E56}
+.btn-r{background:#FCEBEB;border-color:#F09595;color:#A32D2D}.btn-r:hover{background:#F7C1C1}
+.btn-sm{padding:5px 10px;font-size:11px}
+.sc{background:var(--cb2);border-radius:var(--rl);padding:.875rem 1rem;margin-bottom:.625rem}
+.sr{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:12px;border-bottom:.5px solid var(--cbr)}
+.sr:last-child{border-bottom:none}
+.sk{color:var(--ct2)}.sv{color:var(--ct);font-weight:500;text-align:right;max-width:60%}
+.st{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--ct2);margin:1rem 0 5px}
+.sb{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:500;border:.5px solid}
+.sb-y{background:#E1F5EE;color:#0F6E56;border-color:#5DCAA5}
+.sb-n{background:#FCEBEB;color:#A32D2D;border-color:#F09595}
+.sb-u{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
+.pt{position:relative;aspect-ratio:1;border-radius:var(--rm);overflow:hidden;border:.5px solid var(--cbr)}
+.pt img{width:100%;height:100%;object-fit:cover}
+.pdel{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pcap{font-size:11px;padding:4px 6px;background:var(--cb2);color:var(--ct2);border:.5px solid var(--cbr);border-radius:var(--rm);width:100%;margin-top:3px;font-family:var(--font)}
+.ua{border:1.5px dashed var(--cbr2);border-radius:var(--rl);padding:1.5rem;text-align:center;cursor:pointer;transition:all .15s;color:var(--ct2)}
+.ua:hover{border-color:#1D9E75;background:#E1F5EE}
+.acard{background:var(--cb);border:.5px solid var(--cbr);border-radius:var(--rl);padding:.875rem 1rem;margin-bottom:.625rem;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.acinfo{flex:1;min-width:0}
+.act{font-size:13px;font-weight:500;color:var(--ct);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acs{font-size:11px;color:var(--ct2);margin-top:2px}
+.acbtns{display:flex;gap:5px;flex-shrink:0}
+.ta{min-height:28px;margin-bottom:.375rem}
+.toast{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rm);font-size:12px;font-weight:500;border:.5px solid;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.tok{background:#E1F5EE;color:#0F6E56;border-color:#5DCAA5}
+.terr{background:#FCEBEB;color:#A32D2D;border-color:#F09595}
+.actrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:.75rem}
+.empty{color:var(--ct2);font-size:12px;text-align:center;padding:2rem 0}
+.footer{margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--cbr);font-size:11px;color:var(--ct2);text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="app-header">
+  <div><div class="ah-title"><i class="ti ti-tree"></i> Baumsicherheitsbeurteilung</div><div class="ah-sub">Sicherheitstechnischer Dienst · SVLFG</div></div>
+  <button class="btn" id="modeBtn" onclick="toggleMode()"><i class="ti ti-archive"></i> Gespeicherte (<span id="savedCount">0</span>)</button>
+</div>
+<div class="ta"><div class="toast" id="toast"></div></div>
+
+<div id="listView" style="display:none">
+  <div id="savedList"><div class="empty"><i class="ti ti-mood-empty"></i><br>Noch keine Beurteilungen gespeichert.</div></div>
+  <div style="margin-top:.875rem"><button class="btn btn-g" onclick="newAssessment()"><i class="ti ti-plus"></i> Neue Beurteilung</button></div>
+</div>
+
+<div id="formView">
+  <div class="pbar" id="pb"><div class="s active" id="p0"></div><div class="s" id="p1"></div><div class="s" id="p2"></div><div class="s" id="p3"></div><div class="s" id="p4"></div><div class="s" id="p5"></div><div class="s" id="p6"></div></div>
+
+  <!-- Schritt 0: Einsatz -->
+  <div class="sec active" id="s0">
+    <div class="sh"><h2><i class="ti ti-map-pin"></i> Einsatz</h2><p>Grunddaten zum Einsatz</p></div>
+    <div class="r2"><div><label class="fl">Einsatzort</label><input type="text" id="einsatzort" placeholder="z.B. Stadtpark Musterstadt"></div><div><label class="fl">Datum</label><input type="date" id="datum"></div></div>
+    <div class="r2" style="margin-top:.75rem"><div><label class="fl">Aufsichtsführender</label><input type="text" id="aufseher" placeholder="Name"></div><div><label class="fl">Einsatztyp</label><div class="rg"><label class="ri"><input type="radio" name="etyp" value="Baumarbeiten"><span>Baumarbeiten</span></label><label class="ri"><input type="radio" name="etyp" value="Hubarbeitsbühne"><span>Hubarbeitsbühne</span></label><label class="ri"><input type="radio" name="etyp" value="SKT"><span>SKT</span></label><label class="ri"><input type="radio" name="etyp" value="Kraneinsatz"><span>Kran</span></label></div></div></div>
+    <div class="r2" style="margin-top:.75rem"><div><label class="fl">Beginn</label><input type="time" id="vonZeit"></div><div><label class="fl">Ende</label><input type="time" id="bisZeit"></div></div>
+  </div>
+
+  <!-- Schritt 1: Personal -->
+  <div class="sec" id="s1">
+    <div class="sh"><h2><i class="ti ti-users"></i> Personal</h2><p>Namen und Qualifikationen</p></div>
+    <div class="pr"><div class="fl" style="margin:0">Name</div><div class="ch">AS I</div><div class="ch">AS II</div><div class="ch">SKT A</div><div class="ch">SKT B</div><div class="ch">SKT K</div><div class="ch"></div></div>
+    <div id="personRows"></div>
+    <button class="btn btn-sm" style="margin-top:6px" onclick="addPersonRow()"><i class="ti ti-plus"></i> Person hinzufügen</button>
+    <label class="fl">Checkliste</label>
+    <div class="cg">
+      <div class="ci" data-key="aufgabe_besprochen" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Arbeitsauftrag besprochen</span></div>
+      <div class="ci" data-key="bodenperson" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Bodenperson</span></div>
+      <div class="ci" data-key="personal_eingeteilt" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Personal eingeteilt</span></div>
+      <div class="ci" data-key="sicherungsposten" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Sicherungsposten</span></div>
+      <div class="ci" data-key="kommunikation" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kommunikation abgesprochen</span></div>
+      <div class="ci" data-key="gesundheit" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Gesundheitliche Eignung</span></div>
+      <div class="ci" data-key="erfahrung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Ausreichende Erfahrung</span></div>
+    </div>
+  </div>
+
+  <!-- Schritt 2: Arbeiten & Ausrüstung -->
+  <div class="sec" id="s2">
+    <div class="sh"><h2><i class="ti ti-tool"></i> Arbeiten &amp; Ausrüstung</h2><p>Tätigkeiten und Arbeitsmittel</p></div>
+    <label class="fl">Durchzuführende Arbeiten</label>
+    <div class="cg">
+      <div class="ci" data-key="totholz" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Totholzentnahme</span></div>
+      <div class="ci" data-key="kronenpflege" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kronenpflege</span></div>
+      <div class="ci" data-key="kronensicherungsschnitt" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kronensicherungsschnitt</span></div>
+      <div class="ci" data-key="faellung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Fällung</span></div>
+      <div class="ci" data-key="kroneneinkürzung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kroneneinkürzung</span></div>
+      <div class="ci" data-key="faellung_abseil" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Fällung mit Abseiltechnik</span></div>
+      <div class="ci" data-key="kronensicherung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kronensicherung</span></div>
+      <div class="ci" data-key="faellung_kran" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Fällung mit Kran</span></div>
+    </div>
+    <label class="fl">Sonstiges</label><input type="text" id="arbeitenSonstiges" placeholder="weitere Tätigkeiten...">
+    <label class="fl">Ausrüstung und Arbeitsgerät</label>
+    <div class="cg">
+      <div class="ci" data-key="psa_vorhanden" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Betriebssichere PSA vorhanden</span></div>
+      <div class="ci" data-key="abseil_vorhanden" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Abseilausrüstung vorhanden</span></div>
+      <div class="ci" data-key="psa_geprueft" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">PSA überprüft</span></div>
+      <div class="ci" data-key="abseil_geprueft" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Abseilausrüstung überprüft</span></div>
+      <div class="ci" data-key="zwei_kletter" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Zwei Kletterausrüstungen</span></div>
+      <div class="ci" data-key="rettungsmaterial" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Rettungsmaterial</span></div>
+      <div class="ci" data-key="maschinen_vorhanden" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Maschinen vorhanden</span></div>
+      <div class="ci" data-key="maschinen_geprueft" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Maschinen überprüft</span></div>
+      <div class="ci" data-key="erste_hilfe" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Erste-Hilfe-Ausrüstung</span></div>
+      <div class="ci" data-key="funk_noetig" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Funk erforderlich</span></div>
+      <div class="ci" data-key="funk_geprueft" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Funk geprüft</span></div>
+      <div class="ci" data-key="absperr" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Absperr- u. Sicherungsmaterial</span></div>
+    </div>
+  </div>
+
+  <!-- Schritt 3: Baumbezogene Gefahren -->
+  <div class="sec" id="s3">
+    <div class="sh"><h2><i class="ti ti-tree"></i> Baumbezogene Gefahren</h2><p>Baum und Umgebung</p></div>
+    <div class="r3"><div><label class="fl">Baumart</label><input type="text" id="baumart" placeholder="z.B. Eiche"></div><div><label class="fl">Höhe (m)</label><input type="text" id="baumhoehe" placeholder="z.B. 15"></div><div><label class="fl">Stamm-Ø (cm)</label><input type="text" id="stamm" placeholder="z.B. 40"></div></div>
+    <label class="fl">Ausrichtung</label>
+    <div class="rg"><label class="ri"><input type="radio" name="aus" value="Normalbaum"><span>Normalbaum</span></label><label class="ri"><input type="radio" name="aus" value="Vorhänger"><span>Vorhänger</span></label><label class="ri"><input type="radio" name="aus" value="Rückhänger"><span>Rückhänger</span></label><label class="ri"><input type="radio" name="aus" value="Seithänger"><span>Seithänger</span></label><label class="ri"><input type="radio" name="aus" value="angekippt"><span>angekippt</span></label></div>
+    <label class="fl">Baumumfeld</label>
+    <div class="cg">
+      <div class="ci" data-key="bodenrisse" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Bodenrisse</span></div>
+      <div class="ci" data-key="nachbarbaeume" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Nachbarbäume</span></div>
+      <div class="ci" data-key="wurzelverletzung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Wurzelverletzung</span></div>
+      <div class="ci" data-key="pilz_umfeld" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Pilzfruchtkörper</span></div>
+      <div class="ci" data-key="fallbereich_umf" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Fallbereich frei</span></div>
+    </div>
+    <label class="fl">Stammfuß / Stamm</label>
+    <div class="cg">
+      <div class="ci" data-key="defekt_stamm" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Defektsymptome (Risse/Wülste/Beulen)</span></div>
+      <div class="ci" data-key="pilz_stamm" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Pilzfruchtkörper</span></div>
+      <div class="ci" data-key="faulstellen_stamm" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Faulstellen</span></div>
+      <div class="ci" data-key="baumchirurgie" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Baumchirurgische Maßnahmen</span></div>
+      <div class="ci" data-key="wunden" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Wunden</span></div>
+      <div class="ci" data-key="tote_rinde" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Abgestorbene Rinde</span></div>
+    </div>
+    <label class="fl">Baumkrone</label>
+    <div class="cg">
+      <div class="ci" data-key="vitalitaet" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Vitalität auffällig</span></div>
+      <div class="ci" data-key="totholz_krone" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Totholz</span></div>
+      <div class="ci" data-key="defekt_krone" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Defektsymptome</span></div>
+      <div class="ci" data-key="druckzwiesel" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Druckzwiesel</span></div>
+      <div class="ci" data-key="ausbrueche" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Ausbrüche</span></div>
+      <div class="ci" data-key="sturmschaeden" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Sturmschäden</span></div>
+      <div class="ci" data-key="insekten" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Insektennester</span></div>
+      <div class="ci" data-key="alte_sicherung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Alte Kronensicherung</span></div>
+      <div class="ci" data-key="kappung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kappung</span></div>
+      <div class="ci" data-key="faulstellen_krone" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Faulstellen</span></div>
+      <div class="ci" data-key="pilz_krone" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Pilzfruchtkörper</span></div>
+    </div>
+    <label class="fl">Kronengewicht</label>
+    <div class="rg"><label class="ri"><input type="radio" name="kgew" value="gleichmäßig"><span>gleichmäßig</span></label><label class="ri"><input type="radio" name="kgew" value="einseitig"><span>einseitig</span></label></div>
+    <label class="fl">Baum sicher für geplante Arbeiten</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><div class="sso" data-v="ja" onclick="setSafety(this)">✓ Ja</div><div class="sso" data-v="nein" onclick="setSafety(this)">✗ Nein</div><div class="sso" data-v="untersuchung" onclick="setSafety(this)">⚠ Untersuchung nötig</div></div>
+    <label class="fl">Bemerkung</label><textarea id="bemerkung" placeholder="Freitext..."></textarea>
+  </div>
+
+  <!-- Schritt 4: Gefahren & Rettung -->
+  <div class="sec" id="s4">
+    <div class="sh"><h2><i class="ti ti-alert-triangle"></i> Gefahren &amp; Rettung</h2><p>Einsatzort und Notfallmaßnahmen</p></div>
+    <label class="fl">Gefahren am Einsatzort</label>
+    <div class="cg">
+      <div class="ci" data-key="witterung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Witterung geeignet</span></div>
+      <div class="ci" data-key="stromleitungen" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Stromleitungen</span></div>
+      <div class="ci" data-key="fallbereich_frei" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Fallbereich frei</span></div>
+      <div class="ci" data-key="verkehr" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Verkehrssicherung notwendig</span></div>
+      <div class="ci" data-key="abseilen_noetig" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Abseilen erforderlich</span></div>
+      <div class="ci" data-key="kommunikation_moegl" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Kommunikation möglich</span></div>
+      <div class="ci" data-key="rueckweiche" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Rückweiche vorhanden</span></div>
+    </div>
+    <label class="fl">Sonstiges</label><input type="text" id="einsatzSonstiges" placeholder="weitere Gefahren...">
+    <label class="fl">Notfall- und Rettungsmaßnahmen</label>
+    <div class="cg">
+      <div class="ci" data-key="ort_bekannt" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Einsatzort / Zufahrt bekannt</span></div>
+      <div class="ci" data-key="notruf" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Notruf möglich</span></div>
+      <div class="ci" data-key="massnahmen_besp" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Maßnahmen besprochen</span></div>
+      <div class="ci" data-key="erstehilfe_mat" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Erste-Hilfe-Material</span></div>
+      <div class="ci" data-key="rettungsmat" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Rettungsmaterial</span></div>
+      <div class="ci" data-key="rettungsseil" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Rettungsseil</span></div>
+      <div class="ci" data-key="sichtverbindung" onclick="tc(this)"><div class="cbox"><i class="ti ti-check cicon"></i></div><span class="clbl">Ruf- und Sichtverbindung</span></div>
+    </div>
+    <label class="fl">Besonderheiten</label><textarea id="besonderheiten" placeholder="Sonstige Hinweise..."></textarea>
+  </div>
+
+  <!-- Schritt 5: Fotos -->
+  <div class="sec" id="s5">
+    <div class="sh"><h2><i class="ti ti-camera"></i> Fotos</h2><p>Fotos zur Beurteilung hinzufügen</p></div>
+    <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+    <div class="ua" onclick="document.getElementById('photoInput').click()">
+      <i class="ti ti-cloud-upload" style="font-size:26px;margin-bottom:6px;display:block"></i>
+      <div style="font-size:13px;font-weight:500;color:var(--ct)">Fotos hinzufügen</div>
+      <div style="font-size:11px;margin-top:3px">Kamera oder Galerie · mehrere gleichzeitig möglich</div>
+    </div>
+    <div class="pg" id="photoGrid"></div>
+  </div>
+
+  <!-- Schritt 6: Zusammenfassung -->
+  <div class="sec" id="s6">
+    <div class="sh"><h2><i class="ti ti-clipboard-check"></i> Zusammenfassung</h2><p>Prüfen und abschließen</p></div>
+    <div id="summaryContent"></div>
+    <label class="fl">Verantwortlicher (Name / Unterschrift)</label>
+    <input type="text" id="verantwortlicher" placeholder="Name">
+    <div style="font-size:11px;color:var(--ct2);padding:8px 10px;background:var(--cb2);border-radius:var(--rm);line-height:1.6;margin-top:8px">
+      Auf Grundlage der von mir durchgeführten Gefährdungsermittlung / Baumsicherheitsbeurteilung können die geplanten Arbeiten durchgeführt werden.
+    </div>
+    <div class="actrow">
+      <button class="btn btn-g" onclick="saveAssessment()"><i class="ti ti-device-floppy"></i> Speichern</button>
+      <button class="btn" id="pdfBtn" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      <button class="btn" id="shareBtn" onclick="shareAssessment()"><i class="ti ti-share"></i> Teilen</button>
+    </div>
+  </div>
+
+  <div class="navrow">
+    <button class="btn" id="btnBack" onclick="nav(-1)" disabled><i class="ti ti-arrow-left"></i> Zurück</button>
+    <span style="font-size:11px;color:var(--ct2)" id="stepLbl">Schritt 1 von 7</span>
+    <button class="btn btn-g" id="btnNext" onclick="nav(1)">Weiter <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+
+
+
+<div style="margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--cbr);font-size:11px;color:var(--ct2);line-height:1.8">
+  <div style="font-weight:600;color:var(--ct);margin-bottom:4px">Josua Hundertmark</div>
+  <div><a href="mailto:hey@ropesconnectingpeople.com" style="color:var(--ct2);text-decoration:none">hey@ropesconnectingpeople.com</a></div>
+  <div><a href="https://instagram.com/ropesconnectingpeople" target="_blank" style="color:var(--ct2);text-decoration:none">@ropesconnectingpeople</a></div>
+  <div style="margin-top:.5rem;font-size:10px;color:var(--ct2);opacity:.7">Formulargrundlage: SVLFG – Sicherheitstechnischer Dienst, „Einsatzbezogene Gefährdungsermittlung / Baumsicherheitsbeurteilung" (Stand Sept. 2019)</div>
+</div>
+</div><!-- /wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const STEPS=7;let step=0,photos=[],editId=null,toastT;
+const LABELS={aufgabe_besprochen:'Arbeitsauftrag besprochen',bodenperson:'Bodenperson',personal_eingeteilt:'Personal eingeteilt',sicherungsposten:'Sicherungsposten',kommunikation:'Kommunikation abgesprochen',gesundheit:'Gesundheitliche Eignung',erfahrung:'Ausreichende Erfahrung',totholz:'Totholzentnahme',kronenpflege:'Kronenpflege',kronensicherungsschnitt:'Kronensicherungsschnitt',faellung:'Fällung','kroneneinkürzung':'Kroneneinkürzung',faellung_abseil:'Fällung m. Abseiltechnik',kronensicherung:'Kronensicherung',faellung_kran:'Fällung m. Kran',psa_vorhanden:'PSA vorhanden',abseil_vorhanden:'Abseilausrüstung vorhanden',psa_geprueft:'PSA überprüft',abseil_geprueft:'Abseilausrüstung überprüft',zwei_kletter:'Zwei Kletterausrüstungen',rettungsmaterial:'Rettungsmaterial',maschinen_vorhanden:'Maschinen vorhanden',maschinen_geprueft:'Maschinen überprüft',erste_hilfe:'Erste-Hilfe-Ausrüstung',funk_noetig:'Funk erforderlich',funk_geprueft:'Funk geprüft',absperr:'Absperr-/Sicherungsmaterial',bodenrisse:'Bodenrisse',nachbarbaeume:'Nachbarbäume',wurzelverletzung:'Wurzelverletzung',pilz_umfeld:'Pilzfruchtkörper (Umfeld)',fallbereich_umf:'Fallbereich frei (Umfeld)',defekt_stamm:'Defektsymptome',pilz_stamm:'Pilzfruchtkörper (Stamm)',faulstellen_stamm:'Faulstellen',baumchirurgie:'Baumchirurgie',wunden:'Wunden',tote_rinde:'Abgest. Rinde',vitalitaet:'Vitalität auffällig',totholz_krone:'Totholz',defekt_krone:'Defektsymptome (Krone)',druckzwiesel:'Druckzwiesel',ausbrueche:'Ausbrüche',sturmschaeden:'Sturmschäden',insekten:'Insektennester',alte_sicherung:'Alte Kronensicherung',kappung:'Kappung',faulstellen_krone:'Faulstellen (Krone)',pilz_krone:'Pilzfruchtkörper (Krone)',witterung:'Witterung geeignet',stromleitungen:'Stromleitungen',fallbereich_frei:'Fallbereich frei',verkehr:'Verkehrssicherung notwendig',abseilen_noetig:'Abseilen erforderlich',kommunikation_moegl:'Kommunikation möglich',rueckweiche:'Rückweiche vorhanden',ort_bekannt:'Einsatzort/Zufahrt bekannt',notruf:'Notruf möglich',massnahmen_besp:'Maßnahmen besprochen',erstehilfe_mat:'Erste-Hilfe-Material',rettungsmat:'Rettungsmaterial',rettungsseil:'Rettungsseil',sichtverbindung:'Ruf-/Sichtverbindung'};
+
+async function init(){
+  document.getElementById('datum').value=new Date().toISOString().split('T')[0];
+  buildPersonRows();setupRadios();await updateCount();
+}
+async function updateCount(){
+  try{const r=await window.storage.list('bsa_');document.getElementById('savedCount').textContent=r?r.keys.length:0;}catch(e){document.getElementById('savedCount').textContent='0';}
+}
+function toggleMode(){
+  const lv=document.getElementById('listView'),fv=document.getElementById('formView'),btn=document.getElementById('modeBtn');
+  if(lv.style.display==='none'){lv.style.display='block';fv.style.display='none';btn.innerHTML='<i class="ti ti-pencil"></i> Beurteilung';loadList();}
+  else{lv.style.display='none';fv.style.display='block';btn.innerHTML='<i class="ti ti-archive"></i> Gespeicherte (<span id="savedCount">...</span>)';updateCount();}
+}
+function newAssessment(){resetForm();toggleMode();}
+async function loadList(){
+  const c=document.getElementById('savedList');c.innerHTML='<div class="empty">Lade...</div>';
+  try{
+    const r=await window.storage.list('bsa_');
+    if(!r||!r.keys.length){c.innerHTML='<div class="empty"><i class="ti ti-mood-empty"></i><br>Noch keine Beurteilungen.</div>';return;}
+    const items=[];
+    for(const k of r.keys){try{const d=await window.storage.get(k);if(d)items.push(JSON.parse(d.value));}catch(e){}}
+    items.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    c.innerHTML=items.map(a=>{
+      const sc=a.sicherheit==='ja'?'sb-y':a.sicherheit==='nein'?'sb-n':'sb-u';
+      const sl=a.sicherheit==='ja'?'✓ Sicher':a.sicherheit==='nein'?'✗ Nicht sicher':a.sicherheit==='untersuchung'?'⚠ Untersuchung':'';
+      const dt=a.datum?new Date(a.datum).toLocaleDateString('de-DE'):'–';
+      return`<div class="acard"><div class="acinfo"><div class="act">${a.einsatzort||'Kein Ort'}</div><div class="acs">${dt} · ${a.baumart||'Baumart unbekannt'}${sl?` · <span class="sb ${sc}">${sl}</span>`:''}</div></div><div class="acbtns"><button class="btn btn-sm" onclick="loadAssessment('${a.id}')" title="Öffnen"><i class="ti ti-edit"></i></button><button class="btn btn-sm" onclick="exportSaved('${a.id}')" title="PDF"><i class="ti ti-file-type-pdf"></i></button><button class="btn btn-sm btn-r" onclick="delAssessment('${a.id}')" title="Löschen"><i class="ti ti-trash"></i></button></div></div>`;
+    }).join('');
+  }catch(e){c.innerHTML='<div class="empty">Fehler beim Laden.</div>';}
+}
+async function delAssessment(id){
+  try{await window.storage.delete(id);toast('Gelöscht','ok');loadList();updateCount();}catch(e){toast('Fehler','err');}
+}
+async function loadAssessment(id){
+  try{
+    const r=await window.storage.get(id);if(!r){toast('Nicht gefunden','err');return;}
+    const d=JSON.parse(r.value);
+    resetForm();loadFormData(d.formData);photos=d.photos||[];renderPhotos();editId=id;
+    document.getElementById('listView').style.display='none';
+    document.getElementById('formView').style.display='block';
+    document.getElementById('modeBtn').innerHTML='<i class="ti ti-archive"></i> Gespeicherte (<span id="savedCount">...</span>)';
+    updateCount();goTo(6);buildSummary();toast('Geladen','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+}
+async function exportSaved(id){
+  try{const r=await window.storage.get(id);if(!r)return;const d=JSON.parse(r.value);const doc=await buildPDF(d.formData,d.photos||[]);doc.save('baumsicherheit_'+(d.einsatzort||'export')+'.pdf');}catch(e){toast('PDF-Fehler','err');}
+}
+function buildPersonRows(count){
+  const c=document.getElementById('personRows');if(!c)return;c.innerHTML='';
+  for(let i=0;i<(count||4);i++) _addRow(i);
+}
+function _addRow(i){
+  const c=document.getElementById('personRows');
+  const d=document.createElement('div');d.className='pr';d.dataset.idx=i;
+  d.innerHTML=`<input type="text" class="pname" placeholder="Name ${i+1}" id="p${i}">${['asb1','asb2','skta','sktb','sktk'].map(r=>`<div class="rchk" id="rc_${i}_${r}" onclick="this.classList.toggle('on')"></div>`).join('')}<div class="pdel-row" onclick="deletePersonRow(this)" title="Entfernen" style="cursor:pointer;text-align:center;color:var(--ct2);font-size:14px;line-height:1">×</div>`;
+  c.appendChild(d);
+}
+function addPersonRow(){
+  const rows=document.querySelectorAll('#personRows .pr');
+  _addRow(rows.length);
+}
+function deletePersonRow(el){
+  const row=el.closest('.pr');
+  if(document.querySelectorAll('#personRows .pr').length<=1)return;
+  row.remove();
+  // re-index
+  document.querySelectorAll('#personRows .pr').forEach((r,i)=>{
+    r.dataset.idx=i;
+    const inp=r.querySelector('.pname');if(inp){inp.id='p'+i;inp.placeholder='Name '+(i+1);}
+    ['asb1','asb2','skta','sktb','sktk'].forEach(role=>{const el=r.querySelector(`[id^="rc_"]`+`[id$="_${role}"]`);if(el)el.id=`rc_${i}_${role}`;});
+  });
+}
+function setupRadios(){document.querySelectorAll('.ri').forEach(r=>{r.addEventListener('click',function(){const n=this.querySelector('input').name;document.querySelectorAll(`.ri input[name="${n}"]`).forEach(i=>i.closest('.ri').classList.remove('sel'));this.classList.add('sel');this.querySelector('input').checked=true;});});}
+function tc(el){el.classList.toggle('on');}
+function setSafety(el){document.querySelectorAll('.sso').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function resetForm(){
+  ['einsatzort','aufseher','vonZeit','bisZeit','baumart','baumhoehe','stamm','arbeitenSonstiges','bemerkung','einsatzSonstiges','besonderheiten','verantwortlicher'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('datum').value=new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.ri').forEach(r=>{r.classList.remove('sel');r.querySelector('input').checked=false;});
+  document.querySelectorAll('[data-key]').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.sso').forEach(o=>o.classList.remove('sel'));
+  buildPersonRows();photos=[];renderPhotos();editId=null;goTo(0);
+}
+function collectChecks(){const r={};document.querySelectorAll('[data-key]').forEach(el=>r[el.dataset.key]=el.classList.contains('on'));return r;}
+function collectFD(){
+  const persons=[];
+  document.querySelectorAll('#personRows .pr').forEach((row,i)=>{
+    const n=row.querySelector('.pname')?.value||'';
+    const roles=['asb1','asb2','skta','sktb','sktk'].filter(r=>row.querySelector(`[id$="_${r}"]`)?.classList.contains('on'));
+    persons.push({name:n,roles});
+  });
+  return{einsatzort:document.getElementById('einsatzort')?.value||'',datum:document.getElementById('datum')?.value||'',aufseher:document.getElementById('aufseher')?.value||'',einsatzTyp:document.querySelector('input[name="etyp"]:checked')?.value||'',vonZeit:document.getElementById('vonZeit')?.value||'',bisZeit:document.getElementById('bisZeit')?.value||'',persons,checks:collectChecks(),arbeitenSonstiges:document.getElementById('arbeitenSonstiges')?.value||'',baumart:document.getElementById('baumart')?.value||'',baumhoehe:document.getElementById('baumhoehe')?.value||'',stamm:document.getElementById('stamm')?.value||'',ausrichtung:document.querySelector('input[name="aus"]:checked')?.value||'',kronengewicht:document.querySelector('input[name="kgew"]:checked')?.value||'',sicherheit:document.querySelector('.sso.sel')?.dataset.v||'',bemerkung:document.getElementById('bemerkung')?.value||'',einsatzSonstiges:document.getElementById('einsatzSonstiges')?.value||'',besonderheiten:document.getElementById('besonderheiten')?.value||'',verantwortlicher:document.getElementById('verantwortlicher')?.value||''};
+}
+function loadFormData(d){
+  if(!d)return;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
+  set('einsatzort',d.einsatzort);set('datum',d.datum||new Date().toISOString().split('T')[0]);set('aufseher',d.aufseher);set('vonZeit',d.vonZeit);set('bisZeit',d.bisZeit);set('arbeitenSonstiges',d.arbeitenSonstiges);set('baumart',d.baumart);set('baumhoehe',d.baumhoehe);set('stamm',d.stamm);set('bemerkung',d.bemerkung);set('einsatzSonstiges',d.einsatzSonstiges);set('besonderheiten',d.besonderheiten);set('verantwortlicher',d.verantwortlicher);
+  ['etyp','aus','kgew'].forEach(n=>{const v={etyp:d.einsatzTyp,aus:d.ausrichtung,kgew:d.kronengewicht}[n];if(v){const r=document.querySelector(`input[name="${n}"][value="${v}"]`);if(r){r.checked=true;r.closest('.ri').classList.add('sel');}}});
+  if(d.sicherheit){const o=document.querySelector(`.sso[data-v="${d.sicherheit}"]`);if(o)o.classList.add('sel');}
+  if(d.checks){document.querySelectorAll('[data-key]').forEach(el=>{el.classList.toggle('on',!!d.checks[el.dataset.key]);});}
+  buildPersonRows(Math.max(4, (d.persons||[]).length));
+  if(d.persons){d.persons.forEach((p,i)=>{const e=document.getElementById('p'+i);if(e)e.value=p.name||'';(p.roles||[]).forEach(r=>{const el=document.getElementById(`rc_${i}_${r}`);if(el)el.classList.add('on');});});}
+}
+async function saveAssessment(){
+  const fd=collectFD();const id=editId||`bsa_${Date.now()}`;editId=id;
+  const data={id,createdAt:new Date().toISOString(),einsatzort:fd.einsatzort,datum:fd.datum,baumart:fd.baumart,sicherheit:fd.sicherheit,formData:fd,photos:photos.map(p=>({dataUrl:p.dataUrl,caption:p.caption||''}))};
+  try{await window.storage.set(id,JSON.stringify(data));toast('Gespeichert!','ok');updateCount();}
+  catch(e){toast('Speichern fehlgeschlagen (localStorage nutzen falls außerhalb Claude)','err');}
+}
+async function handlePhotos(e){
+  const files=Array.from(e.target.files);
+  for(const f of files){try{const du=await readDU(f);const c=await compress(du,1200,1200,0.75);photos.push({id:Date.now()+Math.random(),dataUrl:c,caption:''});}catch(e){}}
+  renderPhotos();e.target.value='';
+}
+function readDU(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=()=>rej();r.readAsDataURL(f);});}
+function compress(du,mw,mh,q){return new Promise(res=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>mw){h=Math.round(h*mw/w);w=mw;}if(h>mh){w=Math.round(w*mh/h);h=mh;}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',q));};img.src=du;});}
+function renderPhotos(){
+  const g=document.getElementById('photoGrid');if(!g)return;
+  g.innerHTML=photos.map((p,i)=>`<div><div class="pt"><img src="${p.dataUrl}" alt="Foto ${i+1}"><button class="pdel" onclick="delPhoto(${i})"><i class="ti ti-x"></i></button></div><input class="pcap" type="text" placeholder="Beschriftung..." value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="photos[${i}].caption=this.value"></div>`).join('');
+}
+function delPhoto(i){photos.splice(i,1);renderPhotos();}
+function nav(dir){const n=step+dir;if(n<0||n>=STEPS)return;if(n===6)buildSummary();goTo(n);}
+function goTo(n){
+  document.getElementById('s'+step)?.classList.remove('active');step=n;
+  for(let i=0;i<STEPS;i++){const pb=document.getElementById('p'+i);if(!pb)continue;pb.className='s';if(i<step)pb.classList.add('done');else if(i===step)pb.classList.add('active');}
+  document.getElementById('s'+step)?.classList.add('active');
+  document.getElementById('btnBack').disabled=step===0;
+  document.getElementById('stepLbl').textContent=`Schritt ${step+1} von ${STEPS}`;
+  document.getElementById('btnNext').style.display=step===STEPS-1?'none':'';
+}
+function buildSummary(){
+  const fd=collectFD();
+  const arbKeys=['totholz','kronenpflege','kronensicherungsschnitt','faellung','kroneneinkürzung','faellung_abseil','kronensicherung','faellung_kran'];
+  const arb=arbKeys.filter(k=>fd.checks&&fd.checks[k]).map(k=>LABELS[k]||k);
+  const pers=fd.persons.filter(p=>p.name);
+  const sc=fd.sicherheit==='ja'?'sb-y':fd.sicherheit==='nein'?'sb-n':fd.sicherheit?'sb-u':'';
+  const sl=fd.sicherheit==='ja'?'✓ Sicher':fd.sicherheit==='nein'?'✗ Nicht sicher':fd.sicherheit==='untersuchung'?'⚠ Untersuchung':'–';
+  document.getElementById('summaryContent').innerHTML=`
+    <div class="st">Einsatz</div><div class="sc">
+      <div class="sr"><span class="sk">Einsatzort</span><span class="sv">${fd.einsatzort||'–'}</span></div>
+      <div class="sr"><span class="sk">Datum</span><span class="sv">${fd.datum?new Date(fd.datum).toLocaleDateString('de-DE'):'–'}</span></div>
+      <div class="sr"><span class="sk">Aufsicht</span><span class="sv">${fd.aufseher||'–'}</span></div>
+      <div class="sr"><span class="sk">Dauer</span><span class="sv">${fd.vonZeit||'–'} – ${fd.bisZeit||'–'}</span></div>
+    </div>
+    <div class="st">Baum</div><div class="sc">
+      <div class="sr"><span class="sk">Art / Höhe / Stamm</span><span class="sv">${fd.baumart||'–'} · ${fd.baumhoehe||'–'} m · Ø${fd.stamm||'–'} cm</span></div>
+      <div class="sr"><span class="sk">Ausrichtung</span><span class="sv">${fd.ausrichtung||'–'}</span></div>
+      <div class="sr"><span class="sk">Kronenlast</span><span class="sv">${fd.kronengewicht||'–'}</span></div>
+      <div class="sr"><span class="sk">Sicherheit</span><span class="sv">${sc?`<span class="sb ${sc}">${sl}</span>`:sl}</span></div>
+    </div>
+    <div class="st">Arbeiten (${arb.length})</div><div class="sc">${arb.length?arb.map(a=>`<div class="sr"><span class="sk" style="color:var(--ct)">✓ ${a}</span></div>`).join(''):'<div class="sr"><span class="sk">Keine ausgewählt</span></div>'}</div>
+    <div class="st">Personal (${pers.length})</div><div class="sc">${pers.length?pers.map(p=>`<div class="sr"><span class="sk">${p.name}</span><span class="sv">${p.roles.join(', ')||'–'}</span></div>`).join(''):'<div class="sr"><span class="sk">Kein Personal</span></div>'}</div>
+    ${photos.length?`<div class="st">Fotos (${photos.length})</div><div class="pg" style="margin-bottom:.5rem">${photos.map((p,i)=>`<div class="pt"><img src="${p.dataUrl}" alt="Foto ${i+1}"></div>`).join('')}</div>`:''}`;
+}
+async function buildPDF(fd,pl){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
+  const M=14,CW=182;let y=18;
+  const chk=(items)=>{for(let i=0;i<items.length;i+=2){if(y>274){doc.addPage();y=14;}doc.setFontSize(8);[items[i],items[i+1]].forEach((it,col)=>{if(!it)return;const x=M+col*(CW/2);const on=fd.checks&&fd.checks[it.k];doc.setFont('helvetica',on?'bold':'normal');doc.setTextColor(on?15:160,on?110:160,on?86:160);doc.text((on?'[X] ':'[ ] ')+(LABELS[it.k]||it.k),x,y);});y+=4.5;}y+=1;};
+  const sec=(t)=>{if(y>268){doc.addPage();y=14;}y+=2;doc.setFillColor(225,245,238);doc.rect(M,y-4,CW,7,'F');doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(15,110,86);doc.text(t,M+2,y);doc.setTextColor(30,30,30);y+=6;};
+  const line=(lbl,val)=>{if(y>274){doc.addPage();y=14;}doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(100,100,100);doc.text(lbl+':',M,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(val||'–',CW-42);doc.text(ls,M+42,y);y+=ls.length*4.2+0.8;};
+  doc.setFillColor(29,158,117);doc.rect(0,0,210,17,'F');doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);doc.text('Einsatzbezogene Gefährdungsermittlung / Baumsicherheitsbeurteilung',M,8);doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.text('Sicherheitstechnischer Dienst · SVLFG',M,13);y=22;
+  sec('EINSATZ');line('Einsatzort',fd.einsatzort);line('Datum',fd.datum?new Date(fd.datum).toLocaleDateString('de-DE'):'');line('Aufsichtsführender',fd.aufseher);line('Dauer',(fd.vonZeit||'–')+' bis '+(fd.bisZeit||'–'));line('Einsatztyp',fd.einsatzTyp);
+  sec('PERSONAL');(fd.persons||[]).filter(p=>p.name).forEach(p=>line(p.name,p.roles.join(', ')||'–'));
+  chk([{k:'aufgabe_besprochen'},{k:'bodenperson'},{k:'personal_eingeteilt'},{k:'sicherungsposten'},{k:'kommunikation'},{k:'gesundheit'},{k:'erfahrung'}]);
+  sec('DURCHZUFÜHRENDE ARBEITEN');chk([{k:'totholz'},{k:'kronenpflege'},{k:'kronensicherungsschnitt'},{k:'faellung'},{k:'kroneneinkürzung'},{k:'faellung_abseil'},{k:'kronensicherung'},{k:'faellung_kran'}]);if(fd.arbeitenSonstiges)line('Sonstiges',fd.arbeitenSonstiges);
+  sec('AUSRÜSTUNG');chk([{k:'psa_vorhanden'},{k:'abseil_vorhanden'},{k:'psa_geprueft'},{k:'abseil_geprueft'},{k:'zwei_kletter'},{k:'rettungsmaterial'},{k:'maschinen_vorhanden'},{k:'maschinen_geprueft'},{k:'erste_hilfe'},{k:'funk_noetig'},{k:'funk_geprueft'},{k:'absperr'}]);
+  doc.addPage();y=14;
+  sec('BAUMBEZOGENE GEFAHREN');line('Baumart',fd.baumart);line('Baumhöhe',fd.baumhoehe?(fd.baumhoehe+' m'):'');line('Stamm-Ø',fd.stamm?(fd.stamm+' cm'):'');line('Ausrichtung',fd.ausrichtung);
+  sec('BAUMUMFELD');chk([{k:'bodenrisse'},{k:'nachbarbaeume'},{k:'wurzelverletzung'},{k:'pilz_umfeld'},{k:'fallbereich_umf'}]);
+  sec('STAMMFUSS / STAMM');chk([{k:'defekt_stamm'},{k:'pilz_stamm'},{k:'faulstellen_stamm'},{k:'baumchirurgie'},{k:'wunden'},{k:'tote_rinde'}]);
+  sec('BAUMKRONE');chk([{k:'vitalitaet'},{k:'totholz_krone'},{k:'defekt_krone'},{k:'druckzwiesel'},{k:'ausbrueche'},{k:'sturmschaeden'},{k:'insekten'},{k:'alte_sicherung'},{k:'kappung'},{k:'faulstellen_krone'},{k:'pilz_krone'}]);line('Kronengewicht',fd.kronengewicht);
+  y+=3;if(y>262){doc.addPage();y=14;}
+  const sicL=fd.sicherheit==='ja'?'JA – Baum ist sicher':fd.sicherheit==='nein'?'NEIN – Baum nicht sicher':fd.sicherheit==='untersuchung'?'Eingehende Untersuchung erforderlich':'Nicht bewertet';
+  const sicC=fd.sicherheit==='ja'?[29,158,117]:fd.sicherheit==='nein'?[226,75,74]:[239,159,39];
+  doc.setFillColor(...sicC);doc.rect(M,y-4,CW,8,'F');doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);doc.text('Sicherheitsbeurteilung: '+sicL,M+2,y+0.5);doc.setTextColor(30,30,30);y+=10;
+  if(fd.bemerkung)line('Bemerkung',fd.bemerkung);
+  sec('GEFAHREN AM EINSATZORT');chk([{k:'witterung'},{k:'stromleitungen'},{k:'fallbereich_frei'},{k:'verkehr'},{k:'abseilen_noetig'},{k:'kommunikation_moegl'},{k:'rueckweiche'}]);if(fd.einsatzSonstiges)line('Sonstiges',fd.einsatzSonstiges);
+  sec('NOTFALL- UND RETTUNGSMASSNAHMEN');chk([{k:'ort_bekannt'},{k:'notruf'},{k:'massnahmen_besp'},{k:'erstehilfe_mat'},{k:'rettungsmat'},{k:'rettungsseil'},{k:'sichtverbindung'}]);if(fd.besonderheiten)line('Besonderheiten',fd.besonderheiten);
+  y+=8;if(y>265){doc.addPage();y=14;}
+  doc.setDrawColor(180,180,180);doc.line(M,y,M+70,y);doc.line(M+90,y,M+CW,y);doc.setFontSize(7);doc.setTextColor(120,120,120);doc.text('Ort und Datum',M,y+4);doc.text('Name / Unterschrift Verantwortlicher',M+90,y+4);
+  if(fd.verantwortlicher){doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(30,30,30);doc.text(fd.verantwortlicher,M+90,y-2);}
+  for(let i=0;i<pl.length;i++){doc.addPage();doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(30,30,30);doc.text(`Foto ${i+1}${pl[i].caption?': '+pl[i].caption:''}`,M,13);try{await new Promise(res=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const sc=Math.min(CW/w,240/h);w=Math.round(w*sc);h=Math.round(h*sc);try{doc.addImage(pl[i].dataUrl,'JPEG',M+(CW-w)/2,18,w,h);}catch(e){}res();};img.onerror=res;img.src=pl[i].dataUrl;});}catch(e){}}
+  return doc;
+}
+async function exportPDF(){
+  const btn=document.getElementById('pdfBtn');if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Erstelle...';}
+  try{if(!window.jspdf){toast('jsPDF lädt noch...','ok');setTimeout(exportPDF,1200);return;}const fd=collectFD();const doc=await buildPDF(fd,photos);doc.save('baumsicherheit_'+(fd.einsatzort||'export')+'_'+(fd.datum||'').replace(/-/g,'')+'.pdf');toast('PDF gespeichert!','ok');}
+  catch(e){toast('PDF-Fehler: '+e.message,'err');}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-file-type-pdf"></i> PDF';}}
+}
+async function shareAssessment(){
+  const btn=document.getElementById('shareBtn');if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Vorbereiten...';}
+  try{if(!window.jspdf){toast('jsPDF lädt noch...','ok');setTimeout(shareAssessment,1200);return;}
+    const fd=collectFD();const doc=await buildPDF(fd,photos);const fn='baumsicherheit_'+(fd.einsatzort||'beurteilung')+'.pdf';const blob=doc.output('blob');const file=new File([blob],fn,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Baumsicherheitsbeurteilung',text:'Baumsicherheitsbeurteilung'+(fd.einsatzort?' – '+fd.einsatzort:'')});}
+    else if(navigator.share){await navigator.share({title:'Baumsicherheitsbeurteilung',text:'Baumsicherheitsbeurteilung'+(fd.einsatzort?' für '+fd.einsatzort:'')});}
+    else{doc.save(fn);toast('PDF heruntergeladen (Teilen nicht verfügbar)','ok');}
+  }catch(e){if(e.name!=='AbortError')toast('Teilen fehlgeschlagen','err');}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-share"></i> Teilen';}}
+}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show t${type}`;clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3000);}
+
+// Wenn außerhalb Claude.ai: localStorage-Fallback für Speicherfunktion
+if(!window.storage){
+  window.storage={
+    _d:{},
+    async get(k){if(k in this._d)return{value:this._d[k]};const v=localStorage.getItem(k);if(v!==null){this._d[k]=v;return{value:v};}throw new Error('Not found');},
+    async set(k,v){this._d[k]=v;localStorage.setItem(k,v);return{key:k,value:v};},
+    async delete(k){delete this._d[k];localStorage.removeItem(k);return{key:k,deleted:true};},
+    async list(prefix){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(prefix))keys.push(k);}Object.keys(this._d).forEach(k=>{if(k.startsWith(prefix)&&!keys.includes(k))keys.push(k);});return{keys};}
+  };
+}
+
+init();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js')
+      .then(r=>console.log('SW:',r.scope))
+      .catch(e=>console.log('SW error:',e));
+  });
+}
+</script>
+</body>
+</html>
