@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GBU – App installieren</title>
+<meta name="theme-color" content="#1D9E75">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#fff;color:#111827;min-height:100vh}
+.header{background:linear-gradient(160deg,#0F6E56 0%,#1D9E75 60%,#3DAA6A 100%);color:white;padding:2rem 1.5rem;text-align:center}
+.header h1{font-size:1.5rem;font-weight:700;margin-bottom:.25rem}
+.header p{font-size:.9rem;opacity:.85}
+.back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,.8);text-decoration:none;font-size:13px;margin-bottom:1rem}
+.tabs{display:flex;border-bottom:2px solid #e5e7eb;max-width:600px;margin:0 auto}
+.tab{flex:1;padding:1rem;text-align:center;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab.active{color:#1D9E75;border-bottom-color:#1D9E75}
+.content{max-width:600px;margin:0 auto;padding:1.5rem}
+.os-section{display:none}
+.os-section.active{display:block}
+.warning{background:#FFF8E1;border:1.5px solid #FFD54F;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:10px;align-items:flex-start}
+.warning i{color:#F59E0B;font-size:20px;flex-shrink:0;margin-top:1px}
+.warning p{font-size:13px;color:#7B5E00;line-height:1.5;font-weight:500}
+.step{display:flex;gap:14px;align-items:flex-start;margin-bottom:1.25rem;padding:1rem;background:#f9fafb;border-radius:12px;border:.5px solid #e5e7eb}
+.step-num{width:32px;height:32px;background:#1D9E75;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.step-text strong{display:block;font-size:14px;font-weight:600;color:#111827;margin-bottom:3px}
+.step-text p{font-size:13px;color:#6b7280;line-height:1.5}
+.step-text .hint{display:inline-flex;align-items:center;gap:4px;background:#E1F5EE;color:#0F6E56;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600;margin-top:5px}
+.important{background:#E1F5EE;border:1.5px solid #1D9E75;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:10px;align-items:flex-start}
+.important i{color:#1D9E75;font-size:20px;flex-shrink:0;margin-top:1px}
+.important p{font-size:13px;color:#0F6E56;line-height:1.5;font-weight:600}
+.cta{text-align:center;padding:1.5rem 0}
+.btn-main{display:inline-flex;align-items:center;gap:8px;background:#1D9E75;color:white;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(29,158,117,.3)}
+.divider{text-align:center;color:#9ca3af;font-size:12px;margin:1rem 0}
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="/GBU" class="back"><i class="ti ti-arrow-left"></i> Zurück zur Startseite</a>
+  <h1>🌳 GBU App installieren</h1>
+  <p>Schritt für Schritt — dauert weniger als 1 Minute</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showOS('ios', event)"><i class="ti ti-brand-apple"></i> iPhone / iPad</div>
+  <div class="tab" onclick="showOS('android', event)"><i class="ti ti-brand-android"></i> Android</div>
+</div>
+<div class="content">
+  <div class="os-section active" id="ios">
+    <div class="warning">
+      <i class="ti ti-alert-triangle"></i>
+      <p>Wichtig: Diese Anleitung funktioniert nur in <strong>Safari</strong>. Falls du einen anderen Browser benutzt, wechsle zuerst zu Safari.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Diese Seite in Safari öffnen</strong>
+        <p>Tippe unten in der Mitte auf das <strong>Teilen-Symbol</strong> — das ist das Quadrat mit dem Pfeil nach oben.</p>
+        <span class="hint"><i class="ti ti-share"></i> Teilen-Symbol</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>„Zum Home-Bildschirm" tippen</strong>
+        <p>Im Menü nach unten scrollen bis du <strong>„Zum Home-Bildschirm"</strong> siehst. Darauf tippen.</p>
+        <span class="hint"><i class="ti ti-plus-square"></i> Zum Home-Bildschirm</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>„Hinzufügen" tippen</strong>
+        <p>Oben rechts auf <strong>„Hinzufügen"</strong> tippen. Die App erscheint jetzt auf deinem Homescreen.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>App öffnen — wichtiger Schritt!</strong>
+        <p>Beim ersten Öffnen fragt das iPhone: <strong>„In Safari öffnen"</strong> oder <strong>„Als Web App öffnen"</strong>.</p>
+        <p style="margin-top:6px">👉 <strong>„In Safari öffnen"</strong> auswählen!</p>
+      </div>
+    </div>
+    <div class="important">
+      <i class="ti ti-info-circle"></i>
+      <p>Nach der Installation funktioniert die App auch ohne Internet — z.B. direkt auf der Baustelle.</p>
+    </div>
+    <div class="cta">
+      <a href="/GBU/app/" class="btn-main"><i class="ti ti-arrow-right"></i> App jetzt öffnen</a>
+      <div class="divider">und dann über das Teilen-Symbol installieren</div>
+    </div>
+  </div>
+  <div class="os-section" id="android">
+    <div class="warning">
+      <i class="ti ti-alert-triangle"></i>
+      <p>Wichtig: Diese Anleitung funktioniert am besten in <strong>Chrome</strong>. Falls du einen anderen Browser benutzt, wechsle zuerst zu Chrome.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Diese Seite in Chrome öffnen</strong>
+        <p>Tippe oben rechts auf die <strong>drei Punkte</strong> (Menü-Symbol).</p>
+        <span class="hint"><i class="ti ti-dots-vertical"></i> Drei Punkte</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>„App installieren" tippen</strong>
+        <p>Im Menü auf <strong>„App installieren"</strong> tippen. Falls das nicht erscheint, nach <strong>„Zum Startbildschirm hinzufügen"</strong> suchen.</p>
+        <span class="hint"><i class="ti ti-download"></i> App installieren</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>„Installieren" bestätigen</strong>
+        <p>Im Popup auf <strong>„Installieren"</strong> tippen. Die App erscheint jetzt auf deinem Homescreen.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>App öffnen</strong>
+        <p>Die GBU App auf dem Homescreen antippen — fertig! Sie funktioniert ab jetzt auch ohne Internet.</p>
+      </div>
+    </div>
+    <div class="important">
+      <i class="ti ti-info-circle"></i>
+      <p>Nach der Installation funktioniert die App auch ohne Internet — z.B. direkt auf der Baustelle.</p>
+    </div>
+    <div class="cta">
+      <a href="/GBU/app/" class="btn-main"><i class="ti ti-arrow-right"></i> App jetzt öffnen</a>
+      <div class="divider">und dann über die drei Punkte installieren</div>
+    </div>
+  </div>
+</div>
+<script>
+function showOS(os, e){
+  document.querySelectorAll('.os-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(os).classList.add('active');
+  e.target.closest('.tab').classList.add('active');
+}
+</script>
+</body>
+</html>
