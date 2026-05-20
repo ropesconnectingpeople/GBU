@@ -1,4 +1,4 @@
-const CACHE = 'bsa-v1';
+const CACHE = 'bsa-v2';
 const ASSETS = [
   '/',
   '/index.html',
