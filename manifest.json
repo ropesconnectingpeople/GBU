@@ -2,7 +2,7 @@
   "name": "Baumsicherheitsbeurteilung",
   "short_name": "GBU",
   "description": "Digitale Gefährdungsermittlung und Baumsicherheitsbeurteilung für Baumpfleger*innen",
-  "start_url": "/GBU/app",
+  "start_url": "/GBU/app/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1D9E75",
