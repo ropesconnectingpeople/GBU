@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baumsicherheitsbeurteilung – SVLFG · STD</title>
+    <title>Baumsicherheitsbeurteilung</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GBU">
@@ -210,7 +210,7 @@
 
     .ci:hover {
         border-color: #5DCAA5;
-        background: var(--cb2)
+        background:var(--cb2)
     }
 
     .ci.on {
@@ -238,7 +238,7 @@
     .cicon {
         color: white;
         font-size: 10px;
-        display: none
+        display:none
     }
 
     .ci.on .cicon {
@@ -328,7 +328,7 @@
 
     .rchk.on {
         background: #1D9E75;
-        border-color: #1D9E75
+        border-color:#1D9E75
     }
 
     .rchk.on::after {
@@ -448,11 +448,11 @@
     }
 
     .sr:last-child {
-        border-bottom: none
+        border-bottom:none
     }
 
     .sk {
-        color:var(--ct2)
+        color: var(--ct2)
     }
 
     .sv {
@@ -579,7 +579,7 @@
 
     .acinfo {
         flex: 1;
-        min-width: 0
+        min-width:0
     }
 
     .act {
@@ -594,7 +594,7 @@
     .acs {
         font-size: 11px;
         color: var(--ct2);
-        margin-top: 2px
+        margin-top:2px
     }
 
     .acbtns {
@@ -622,7 +622,7 @@
     }
 
     .toast.show {
-        opacity: 1
+        opacity:1
     }
 
     .tok {
@@ -649,16 +649,6 @@
         font-size: 12px;
         text-align: center;
         padding: 2rem 0
-    }
-
-    .footer {
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: .5px solid var(--cbr);
-        font-size: 11px;
-        color: var(--ct2);
-        text-align: center;
-        line-height: 1.6
     }
 
     .sig-wrap {
@@ -699,12 +689,112 @@
         color: var(--cbr2);
         pointer-events: none;
         white-space: nowrap
+    }/* OSM Autocomplete */
+
+    .ac-wrap {
+        position: relative
+    }
+
+    .ac-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--cb);
+        border: .5px solid var(--cbr);
+        border-radius: var(--rm);
+        z-index: 50;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none
+    }
+
+    .ac-list.show {
+        display: block
+    }
+
+    .ac-item {
+        padding: 8px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        color: var(--ct);
+        border-bottom: .5px solid var(--cbr)
+    }
+
+    .ac-item:last-child {
+        border-bottom: none
+    }
+
+    .ac-item:hover {
+        background: var(--cb2)
+    }/* Dopamin Overlay */
+
+    .dopamin {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 110, 86, .95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .4s
+    }
+
+    .dopamin.show {
+        opacity: 1;
+        pointer-events: all
+    }
+
+    .dopamin-tree {
+        font-size: 80px;
+        margin-bottom: 1rem;
+        animation: treePop .5s ease
+    }
+
+    .dopamin-text {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+        line-height: 1.5;
+        max-width: 300px
+    }
+
+    .dopamin-sub {
+        color: rgba(255, 255, 255, .7);
+        font-size: 13px;
+        margin-top: 8px
+    }
+
+    @keyframes treePop {
+        0% {
+            transform:scale(0)
+        }
+
+        70% {
+            transform:scale(1.2)
+        }
+
+        100% {
+            transform: scale(1)
+        }
     }
     </style>
 </head>
 <body>
-    <div class="wrap">
 
+    <!-- Dopamin Overlay -->
+    <div class="dopamin" id="dopamin" onclick="hideDopamin()">
+        <div class="dopamin-tree">🌳</div>
+        <div class="dopamin-text">Danke. Du machst unsere Branche ein Stück sicherer.</div>
+        <div class="dopamin-sub">Tippen um fortzufahren</div>
+    </div>
+
+    <div class="wrap">
         <div class="app-header">
             <div>
                 <div class="ah-title">
@@ -718,6 +808,7 @@
                  Gespeicherte (
                 <span id="savedCount">0</span>
                 )
+                    
             </button>
         </div>
         <div class="ta">
@@ -763,7 +854,17 @@
                 <div class="r2">
                     <div>
                         <label class="fl">Einsatzort</label>
-                        <input type="text" id="einsatzort" placeholder="z.B. Stadtpark Musterstadt">
+                        <div class="ac-wrap">
+                            <div style="display:flex;gap:6px">
+                                <input type="text" id="einsatzort" placeholder="z.B. Stadtpark Musterstadt" autocomplete="off" oninput="osmSearch(this.value)" style="flex:1">
+                                <button class="btn" id="gpsBtn" onclick="getGPS()" title="Standort ermitteln" style="flex-shrink:0;padding:7px 10px">
+                                    <i class="ti ti-gps"></i>
+                                     GPS
+                                                  
+                                </button>
+                            </div>
+                            <div class="ac-list" id="ac-list"></div>
+                        </div>
                     </div>
                     <div>
                         <label class="fl">Datum</label>
@@ -776,24 +877,32 @@
                         <input type="text" id="aufseher" placeholder="Name">
                     </div>
                     <div>
-                        <label class="fl">Einsatztyp</label>
-                        <div class="rg">
-                            <label class="ri">
-                                <input type="radio" name="etyp" value="Baumarbeiten">
-                                <span>Baumarbeiten</span>
-                            </label>
-                            <label class="ri">
-                                <input type="radio" name="etyp" value="Hubarbeitsbühne">
-                                <span>Hubarbeitsbühne</span>
-                            </label>
-                            <label class="ri">
-                                <input type="radio" name="etyp" value="SKT">
-                                <span>SKT</span>
-                            </label>
-                            <label class="ri">
-                                <input type="radio" name="etyp" value="Kraneinsatz">
-                                <span>Kran</span>
-                            </label>
+                        <label class="fl">Einsatztyp (Mehrfachauswahl)</label>
+                        <div class="cg" style="margin-top:4px">
+                            <div class="ci" data-etyp="Baumarbeiten" onclick="tc(this)">
+                                <div class="cbox">
+                                    <i class="ti ti-check cicon"></i>
+                                </div>
+                                <span class="clbl">Baumarbeiten</span>
+                            </div>
+                            <div class="ci" data-etyp="Hubarbeitsbühne" onclick="tc(this)">
+                                <div class="cbox">
+                                    <i class="ti ti-check cicon"></i>
+                                </div>
+                                <span class="clbl">Hubarbeitsbühne</span>
+                            </div>
+                            <div class="ci" data-etyp="SKT" onclick="tc(this)">
+                                <div class="cbox">
+                                    <i class="ti ti-check cicon"></i>
+                                </div>
+                                <span class="clbl">SKT</span>
+                            </div>
+                            <div class="ci" data-etyp="Kraneinsatz" onclick="tc(this)">
+                                <div class="cbox">
+                                    <i class="ti ti-check cicon"></i>
+                                </div>
+                                <span class="clbl">Kran</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1369,8 +1478,8 @@
                     <button class="sig-clear" onclick="clearSig()">Löschen</button>
                 </div>
                 <div style="font-size:11px;color:var(--ct2);padding:8px 10px;background:var(--cb2);border-radius:var(--rm);line-height:1.6;margin-top:8px">
-                      Auf Grundlage der von mir durchgeführten Gefährdungsermittlung / Baumsicherheitsbeurteilung können die geplanten Arbeiten durchgeführt werden.
-                    </div>
+                        Auf Grundlage der von mir durchgeführten Gefährdungsermittlung / Baumsicherheitsbeurteilung können die geplanten Arbeiten durchgeführt werden.
+                      </div>
                 <div class="actrow">
                     <button class="btn btn-g" onclick="saveAssessment()">
                         <i class="ti ti-device-floppy"></i>
@@ -1402,16 +1511,11 @@
 
         <div style="margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--cbr);font-size:11px;color:var(--ct2);line-height:1.8">
             <div style="font-weight:600;color:var(--ct);margin-bottom:4px">Josua Hundertmark</div>
-            <div>
-                <a href="mailto:hey@ropesconnectingpeople.com" style="color:var(--ct2);text-decoration:none">hey@ropesconnectingpeople.com</a>
-            </div>
-            <div>
-                <a href="https://instagram.com/ropesconnectingpeople" target="_blank" style="color:var(--ct2);text-decoration:none">@ropesconnectingpeople</a>
-            </div>
-
+            <a href="mailto:hey@ropesconnectingpeople.com" style="color:var(--ct2);text-decoration:none">hey@ropesconnectingpeople.com</a>
+            <br>
+            <a href="https://instagram.com/ropesconnectingpeople" target="_blank" style="color:var(--ct2);text-decoration:none">@ropesconnectingpeople</a>
         </div>
     </div>
-    <!-- /wrap -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
@@ -1419,7 +1523,8 @@
     let step = 0,
         photos = [],
         editId = null,
-        toastT;
+        toastT,
+        osmT;
     const LABELS = {
         aufgabe_besprochen: 'Arbeitsauftrag besprochen',
         bodenperson: 'Bodenperson',
@@ -1486,6 +1591,94 @@
         sichtverbindung: 'Ruf-/Sichtverbindung'
     };
 
+    // GPS
+    async function getGPS() {
+        const btn = document.getElementById('gpsBtn');
+        if (!navigator.geolocation) {
+            toast('GPS nicht verfügbar', 'err');
+            return;
+        }
+        btn.innerHTML = '<i class="ti ti-loader"></i>';
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(async pos => {
+            try {
+                const {latitude: lat, longitude: lon} = pos.coords;
+                const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+                    headers: {
+                        'Accept-Language': 'de'
+                    }
+                });
+                const d = await r.json();
+                if (d.address) {
+                    const a = d.address;
+                    const strasse = (a.road || '');
+                    const nr = (a.house_number || '');
+                    const ort = (a.city || a.town || a.village || a.suburb || '');
+                    const adresse = [strasse + (nr ? ' ' + nr : ''), ort].filter(Boolean).join(', ');
+                    document.getElementById('einsatzort').value = adresse || d.display_name;
+                } else {
+                    toast('Adresse nicht gefunden', 'err');
+                }
+            } catch (e) {
+                toast('Fehler bei der Adressermittlung', 'err');
+            }
+            btn.innerHTML = '<i class="ti ti-gps"></i> GPS';
+            btn.disabled = false;
+        }, err => {
+            toast('GPS-Zugriff verweigert', 'err');
+            btn.innerHTML = '<i class="ti ti-gps"></i> GPS';
+            btn.disabled = false;
+        }, {
+            timeout: 10000
+        });
+    }
+
+    // OSM Autocomplete
+    async function osmSearch(q) {
+        clearTimeout(osmT);
+        const list = document.getElementById('ac-list');
+        if (!q || q.length < 3) {
+            list.classList.remove('show');
+            return;
+        }
+        osmT = setTimeout(async () => {
+            try {
+                const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`, {
+                    headers: {
+                        'Accept-Language': 'de'
+                    }
+                });
+                const data = await r.json();
+                if (!data.length) {
+                    list.classList.remove('show');
+                    return;
+                }
+                list.innerHTML = data.map(d => `<div class="ac-item" onclick="selectPlace('${d.display_name.replace(/'/g, "\\'")}')">${d.display_name}</div>`).join('');
+                list.classList.add('show');
+            } catch (e) {
+                list.classList.remove('show');
+            }
+        }, 400);
+    }
+    function selectPlace(name) {
+        document.getElementById('einsatzort').value = name;
+        document.getElementById('ac-list').classList.remove('show');
+    }
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.ac-wrap'))
+            document.getElementById('ac-list').classList.remove('show');
+    });
+
+    // Dopamin
+    function showDopamin() {
+        const d = document.getElementById('dopamin');
+        d.classList.add('show');
+        setTimeout(() => hideDopamin(), 3000);
+    }
+    function hideDopamin() {
+        document.getElementById('dopamin').classList.remove('show');
+    }
+
     async function init() {
         document.getElementById('datum').value = new Date().toISOString().split('T')[0];
         buildPersonRows();
@@ -1497,7 +1690,8 @@
         try {
             const r = await window.storage.list('bsa_');
             document.getElementById('savedCount').textContent = r ? r.keys.length : 0;
-        } catch (e) {
+        }
+        catch (e) {
             document.getElementById('savedCount').textContent = '0';
         }
     }
@@ -1552,17 +1746,18 @@
     }
     async function delAssessment(id) {
         try {
-            await window.storage.delete(id);
+            await window.storage.delete('bsa_' + id);
             toast('Gelöscht', 'ok');
             loadList();
             updateCount();
-        } catch (e) {
+        }
+        catch (e) {
             toast('Fehler', 'err');
         }
     }
     async function loadAssessment(id) {
         try {
-            const r = await window.storage.get(id);
+            const r = await window.storage.get('bsa_' + id);
             if (!r) {
                 toast('Nicht gefunden', 'err');
                 return;
@@ -1586,13 +1781,14 @@
     }
     async function exportSaved(id) {
         try {
-            const r = await window.storage.get(id);
+            const r = await window.storage.get('bsa_' + id);
             if (!r)
                 return;
             const d = JSON.parse(r.value);
             const doc = await buildPDF(d.formData, d.photos || []);
             doc.save('baumsicherheit_' + (d.einsatzort || 'export') + '.pdf');
-        } catch (e) {
+        }
+        catch (e) {
             toast('PDF-Fehler', 'err');
         }
     }
@@ -1621,7 +1817,6 @@
         if (document.querySelectorAll('#personRows .pr').length <= 1)
             return;
         row.remove();
-        // re-index
         document.querySelectorAll('#personRows .pr').forEach((r, i) => {
             r.dataset.idx = i;
             const inp = r.querySelector('.pname');
@@ -1630,7 +1825,7 @@
                 inp.placeholder = 'Name ' + (i + 1);
             }
             ['asb1', 'asb2', 'skta', 'sktb', 'sktk'].forEach(role => {
-                const el = r.querySelector(`[id^="rc_"]` + `[id$="_${role}"]`);
+                const el = r.querySelector(`[id^="rc_"][id$="_${role}"]`);
                 if (el)
                     el.id = `rc_${i}_${role}`;
             });
@@ -1665,6 +1860,7 @@
             r.querySelector('input').checked = false;
         });
         document.querySelectorAll('[data-key]').forEach(c => c.classList.remove('on'));
+        document.querySelectorAll('[data-etyp]').forEach(c => c.classList.remove('on'));
         document.querySelectorAll('.sso').forEach(o => o.classList.remove('sel'));
         buildPersonRows();
         photos = [];
@@ -1688,11 +1884,13 @@
                 roles
             });
         });
+        // Mehrfachauswahl Einsatztyp
+        const einsatzTyp = Array.from(document.querySelectorAll('[data-etyp].on')).map(el => el.dataset.etyp).join(', ');
         return {
             einsatzort: document.getElementById('einsatzort')?.value || '',
             datum: document.getElementById('datum')?.value || '',
             aufseher: document.getElementById('aufseher')?.value || '',
-            einsatzTyp: document.querySelector('input[name="etyp"]:checked')?.value || '',
+            einsatzTyp,
             vonZeit: document.getElementById('vonZeit')?.value || '',
             bisZeit: document.getElementById('bisZeit')?.value || '',
             persons,
@@ -1732,9 +1930,16 @@
         set('einsatzSonstiges', d.einsatzSonstiges);
         set('besonderheiten', d.besonderheiten);
         set('verantwortlicher', d.verantwortlicher);
-        ['etyp', 'aus', 'kgew'].forEach(n => {
+        // Einsatztyp Mehrfachauswahl laden
+        if (d.einsatzTyp) {
+            const typen = d.einsatzTyp.split(', ');
+            document.querySelectorAll('[data-etyp]').forEach(el => {
+                if (typen.includes(el.dataset.etyp))
+                    el.classList.add('on');
+            });
+        }
+        ['aus', 'kgew'].forEach(n => {
             const v = {
-                etyp: d.einsatzTyp,
                 aus: d.ausrichtung,
                 kgew: d.kronengewicht
             }[n];
@@ -1772,10 +1977,10 @@
     }
     async function saveAssessment() {
         const fd = collectFD();
-        const id = editId || `bsa_${Date.now()}`;
-        editId = id;
+        const uuid = editId || crypto.randomUUID();
+        editId = uuid;
         const data = {
-            id,
+            id: uuid,
             createdAt: new Date().toISOString(),
             einsatzort: fd.einsatzort,
             datum: fd.datum,
@@ -1788,13 +1993,10 @@
             }))
         };
         try {
-            await window.storage.set(id, JSON.stringify(data));
-            toast('Gespeichert!', 'ok');
-            updateCount();
-        }
-        catch (e) {
-            toast('Speichern fehlgeschlagen (localStorage nutzen falls außerhalb Claude)', 'err');
-        }
+            await window.storage.set('bsa_' + uuid, JSON.stringify(data));
+        } catch (e) {}
+        updateCount();
+        showDopamin();
     }
     async function handlePhotos(e) {
         const files = Array.from(e.target.files);
@@ -1887,25 +2089,26 @@
         const sc = fd.sicherheit === 'ja' ? 'sb-y' : fd.sicherheit === 'nein' ? 'sb-n' : fd.sicherheit ? 'sb-u' : '';
         const sl = fd.sicherheit === 'ja' ? '✓ Sicher' : fd.sicherheit === 'nein' ? '✗ Nicht sicher' : fd.sicherheit === 'untersuchung' ? '⚠ Untersuchung' : '–';
         document.getElementById('summaryContent').innerHTML = `
-    <div class="st">Einsatz</div><div class="sc">
-      <div class="sr"><span class="sk">Einsatzort</span><span class="sv">${
+  <div class="st">Einsatz</div><div class="sc">
+  <div class="sr"><span class="sk">Einsatzort</span><span class="sv">${
         fd.einsatzort || '–'}</span></div>
-      <div class="sr"><span class="sk">Datum</span><span class="sv">${fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '–'}</span></div>
-      <div class="sr"><span class="sk">Aufsicht</span><span class="sv">${fd.aufseher || '–'}</span></div>
-      <div class="sr"><span class="sk">Dauer</span><span class="sv">${fd.vonZeit || '–'} – ${fd.bisZeit || '–'}</span></div>
-    </div>
-    <div class="st">Baum</div><div class="sc">
-      <div class="sr"><span class="sk">Art / Höhe / Stamm</span><span class="sv">${
+  <div class="sr"><span class="sk">Datum</span><span class="sv">${fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '–'}</span></div>
+  <div class="sr"><span class="sk">Aufsicht</span><span class="sv">${fd.aufseher || '–'}</span></div>
+  <div class="sr"><span class="sk">Einsatztyp</span><span class="sv">${fd.einsatzTyp || '–'}</span></div>
+  <div class="sr"><span class="sk">Dauer</span><span class="sv">${fd.vonZeit || '–'} – ${fd.bisZeit || '–'}</span></div>
+  </div>
+  <div class="st">Baum</div><div class="sc">
+  <div class="sr"><span class="sk">Art / Höhe / Stamm</span><span class="sv">${
 
         fd.baumart || '–'} · ${fd.baumhoehe || '–'} m · Ø${fd.stamm || '–'} cm</span></div>
-      <div class="sr"><span class="sk">Ausrichtung</span><span class="sv">${fd.ausrichtung || '–'}</span></div>
-      <div class="sr"><span class="sk">Kronenlast</span><span class="sv">${fd.kronengewicht || '–'}</span></div>
-      <div class="sr"><span class="sk">Sicherheit</span><span class="sv">${sc ? `<span class="sb ${sc}">${sl}</span>` : sl}</span></div>
-    </div>
-    <div class="st">Arbeiten (${
+  <div class="sr"><span class="sk">Ausrichtung</span><span class="sv">${fd.ausrichtung || '–'}</span></div>
+  <div class="sr"><span class="sk">Kronenlast</span><span class="sv">${fd.kronengewicht || '–'}</span></div>
+  <div class="sr"><span class="sk">Sicherheit</span><span class="sv">${sc ? `<span class="sb ${sc}">${sl}</span>` : sl}</span></div>
+  </div>
+  <div class="st">Arbeiten (${
         arb.length})</div><div class="sc">${arb.length ? arb.map(a => `<div class="sr"><span class="sk" style="color:var(--ct)">✓ ${a}</span></div>`).join('') : '<div class="sr"><span class="sk">Keine ausgewählt</span></div>'}</div>
-    <div class="st">Personal (${pers.length})</div><div class="sc">${pers.length ? pers.map(p => `<div class="sr"><span class="sk">${p.name}</span><span class="sv">${p.roles.join(', ') || '–'}</span></div>`).join('') : '<div class="sr"><span class="sk">Kein Personal</span></div>'}</div>
-    ${photos.length ? `<div class="st">Fotos (${photos.length})</div><div class="pg" style="margin-bottom:.5rem">${photos.map((p, i) => `<div class="pt"><img src="${p.dataUrl}" alt="Foto ${i + 1}"></div>`).join('')}</div>` : ''}`;
+  <div class="st">Personal (${pers.length})</div><div class="sc">${pers.length ? pers.map(p => `<div class="sr"><span class="sk">${p.name}</span><span class="sv">${p.roles.join(', ') || '–'}</span></div>`).join('') : '<div class="sr"><span class="sk">Kein Personal</span></div>'}</div>
+  ${photos.length ? `<div class="st">Fotos (${photos.length})</div><div class="pg" style="margin-bottom:.5rem">${photos.map((p, i) => `<div class="pt"><img src="${p.dataUrl}" alt="Foto ${i + 1}"></div>`).join('')}</div>` : ''}`;
     }
     async function buildPDF(fd, pl) {
         const {jsPDF} = window.jspdf;
@@ -2266,7 +2469,7 @@
             }
             else {
                 doc.save(fn);
-                toast('PDF heruntergeladen (Teilen nicht verfügbar)', 'ok');
+                toast('PDF heruntergeladen', 'ok');
             }
         } catch (e) {
             if (e.name !== 'AbortError')
@@ -2286,8 +2489,6 @@
         clearTimeout(toastT);
         toastT = setTimeout(() => t.classList.remove('show'), 3000);
     }
-
-    // Unterschrift
     let sigDrawing = false,
         sigLastX = 0,
         sigLastY = 0,
@@ -2298,6 +2499,8 @@
             return;
         cv.width = cv.offsetWidth || 600;
         const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cv.width, cv.height);
         ctx.strokeStyle = '#111827';
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
@@ -2361,17 +2564,18 @@
         const cv = document.getElementById('sigCanvas');
         if (!cv)
             return;
-        cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cv.width, cv.height);
         sigHasSig = false;
         document.getElementById('sigHint').style.display = '';
     }
     function getSigDataUrl() {
         if (!sigHasSig)
             return null;
-        return document.getElementById('sigCanvas')?.toDataURL('image/png');
+        returndocument.getElementById('sigCanvas')?.toDataURL('image/png');
     }
 
-    // Wenn außerhalb Claude.ai: localStorage-Fallback für Speicherfunktion
     if (!window.storage) {
         window.storage = {
             _d: {},
@@ -2427,9 +2631,7 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-            .then(r => console.log('SW:', r.scope))
-            .catch(e => console.log('SW error:', e));
+            navigator.serviceWorker.register('sw.js').then(r => console.log('SW:', r.scope)).catch(e => console.log('SW error:', e));
         });
     }
     </script>
