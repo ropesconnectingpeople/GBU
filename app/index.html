@@ -1003,11 +1003,11 @@
                 </div>
                 <label class="fl">Durchzuführende Arbeiten</label>
                 <div class="cg">
-                    <div class="ci" data-key="totholz" onclick="tc(this)">
+                    <div class="ci" data-key="jungbaum" onclick="tc(this)">
                         <div class="cbox">
                             <i class="ti ti-check cicon"></i>
                         </div>
-                        <span class="clbl">Totholzentnahme</span>
+                        <span class="clbl">Jungbaumpflege</span>
                     </div>
                     <div class="ci" data-key="kronenpflege" onclick="tc(this)">
                         <div class="cbox">
@@ -1015,11 +1015,59 @@
                         </div>
                         <span class="clbl">Kronenpflege</span>
                     </div>
-                    <div class="ci" data-key="kronensicherungsschnitt" onclick="tc(this)">
+                    <div class="ci" data-key="lichtraum" onclick="tc(this)">
                         <div class="cbox">
                             <i class="ti ti-check cicon"></i>
                         </div>
-                        <span class="clbl">Kronensicherungsschnitt</span>
+                        <span class="clbl">Lichtraumprofilschnitt</span>
+                    </div>
+                    <div class="ci" data-key="totholz" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Totholzentfernung</span>
+                    </div>
+                    <div class="ci" data-key="einkuerzung_teile" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Einkürzen von Kronenteilen</span>
+                    </div>
+                    <div class="ci" data-key="einkuerzung_krone" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Einkürzen der gesamten Krone</span>
+                    </div>
+                    <div class="ci" data-key="formschnitt" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Formschnitt / Kopfbaumschnitt</span>
+                    </div>
+                    <div class="ci" data-key="gekappt" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Behandlung gekappter Kronen</span>
+                    </div>
+                    <div class="ci" data-key="kronensicherung" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Kronensicherung</span>
+                    </div>
+                    <div class="ci" data-key="baumfremd" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Entfernung baumfremden Bewuchses</span>
+                    </div>
+                    <div class="ci" data-key="eps" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">EPS-Bekämpfung</span>
                     </div>
                     <div class="ci" data-key="faellung" onclick="tc(this)">
                         <div class="cbox">
@@ -1027,23 +1075,11 @@
                         </div>
                         <span class="clbl">Fällung</span>
                     </div>
-                    <div class="ci" data-key="kroneneinkürzung" onclick="tc(this)">
-                        <div class="cbox">
-                            <i class="ti ti-check cicon"></i>
-                        </div>
-                        <span class="clbl">Kroneneinkürzung</span>
-                    </div>
                     <div class="ci" data-key="faellung_abseil" onclick="tc(this)">
                         <div class="cbox">
                             <i class="ti ti-check cicon"></i>
                         </div>
                         <span class="clbl">Fällung mit Abseiltechnik</span>
-                    </div>
-                    <div class="ci" data-key="kronensicherung" onclick="tc(this)">
-                        <div class="cbox">
-                            <i class="ti ti-check cicon"></i>
-                        </div>
-                        <span class="clbl">Kronensicherung</span>
                     </div>
                     <div class="ci" data-key="faellung_kran" onclick="tc(this)">
                         <div class="cbox">
@@ -1537,13 +1573,19 @@
         kommunikation: 'Kommunikation abgesprochen',
         gesundheit: 'Gesundheitliche Eignung',
         erfahrung: 'Ausreichende Erfahrung',
-        totholz: 'Totholzentnahme',
+        jungbaum: 'Jungbaumpflege',
         kronenpflege: 'Kronenpflege',
-        kronensicherungsschnitt: 'Kronensicherungsschnitt',
-        faellung: 'Fällung',
-        'kroneneinkürzung': 'Kroneneinkürzung',
-        faellung_abseil: 'Fällung m. Abseiltechnik',
+        lichtraum: 'Lichtraumprofilschnitt',
+        totholz: 'Totholzentfernung',
+        einkuerzung_teile: 'Einkürzen von Kronenteilen',
+        einkuerzung_krone: 'Einkürzen der gesamten Krone',
+        formschnitt: 'Formschnitt / Kopfbaumschnitt',
+        gekappt: 'Behandlung gekappter Kronen',
         kronensicherung: 'Kronensicherung',
+        baumfremd: 'Entfernung baumfremden Bewuchses',
+        eps: 'EPS-Bekämpfung',
+        faellung: 'Fällung',
+        faellung_abseil: 'Fällung m. Abseiltechnik',
         faellung_kran: 'Fällung m. Kran',
         psa_vorhanden: 'PSA vorhanden',
         abseil_vorhanden: 'Abseilausrüstung vorhanden',
@@ -2099,7 +2141,7 @@
     }
     function buildSummary() {
         const fd = collectFD();
-        const arbKeys = ['totholz', 'kronenpflege', 'kronensicherungsschnitt', 'faellung', 'kroneneinkürzung', 'faellung_abseil', 'kronensicherung', 'faellung_kran'];
+        const arbKeys = ['jungbaum', 'kronenpflege', 'lichtraum', 'totholz', 'einkuerzung_teile', 'einkuerzung_krone', 'formschnitt', 'gekappt', 'kronensicherung', 'baumfremd', 'eps', 'faellung', 'faellung_abseil', 'faellung_kran'];
         const arb = arbKeys.filter(k => fd.checks && fd.checks[k]).map(k => LABELS[k] || k);
         const pers = fd.persons.filter(p => p.name);
         const sc = fd.sicherheit === 'ja' ? 'sb-y' : fd.sicherheit === 'nein' ? 'sb-n' : fd.sicherheit ? 'sb-u' : '';
@@ -2217,19 +2259,31 @@
         }]);
         sec('DURCHZUFÜHRENDE ARBEITEN');
         chk([{
-            k: 'totholz'
+            k: 'jungbaum'
         }, {
             k: 'kronenpflege'
         }, {
-            k: 'kronensicherungsschnitt'
+            k: 'lichtraum'
+        }, {
+            k: 'totholz'
+        }, {
+            k: 'einkuerzung_teile'
+        }, {
+            k: 'einkuerzung_krone'
+        }, {
+            k: 'formschnitt'
+        }, {
+            k: 'gekappt'
+        }, {
+            k: 'kronensicherung'
+        }, {
+            k: 'baumfremd'
+        }, {
+            k: 'eps'
         }, {
             k: 'faellung'
         }, {
-            k: 'kroneneinkürzung'
-        }, {
             k: 'faellung_abseil'
-        }, {
-            k: 'kronensicherung'
         }, {
             k: 'faellung_kran'
         }]);
