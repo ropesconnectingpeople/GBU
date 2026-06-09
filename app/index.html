@@ -2647,7 +2647,17 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(r => console.log('SW:', r.scope)).catch(e => console.log('SW error:', e));
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.update();
+                reg.addEventListener('updatefound', () => {
+                    const sw = reg.installing;
+                    sw.addEventListener('statechange', () => {
+                        if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            }).catch(e => console.log('SW error:', e));
         });
     }
     </script>
