@@ -2643,7 +2643,7 @@
     function getSigDataUrl() {
         if (!sigHasSig)
             return null;
-        returndocument.getElementById('sigCanvas')?.toDataURL('image/png');
+        return document.getElementById('sigCanvas')?.toDataURL('image/png');
     }
 
     if (!window.storage) {
