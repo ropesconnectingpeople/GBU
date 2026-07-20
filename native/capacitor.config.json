@@ -1,0 +1,11 @@
+{
+  "appId": "com.ropesconnectingpeople.gbu",
+  "appName": "GBU Baumsicherheit",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

@@ -1,451 +1,139 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBU – Baumsicherheitsbeurteilung</title>
-    <meta name="description" content="Digitale Gefährdungsermittlung für Baumpfleger. Kostenlos, offline nutzbar, PDF-Export.">
-    <meta name="theme-color" content="#1D9E75">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-    <link rel="apple-touch-icon" href="icons/icon-180.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-    <style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0
-    }
-
-    :root {
-        --gr: #1D9E75;
-        --grd: #0F6E56;
-        --grbg: #E1F5EE;
-        --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif
-    }
-
-    body {
-        font-family: var(--font);
-        background: #fff;
-        color: #111827;
-        min-height: 100vh
-    }
-
-    .hero {
-        background: linear-gradient(160deg, #0F6E56 0%, #1D9E75 60%, #3DAA6A 100%);
-        color: white;
-        padding: 4rem 1.5rem 3rem;
-        text-align: center
-    }
-
-    .hero-icon {
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, .15);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 40px
-    }
-
-    .hero h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        letter-spacing: -.02em;
-        margin-bottom: .5rem
-    }
-
-    .hero p {
-        font-size: 1rem;
-        opacity: .85;
-        max-width: 400px;
-        margin: 0 auto 2rem;
-        line-height: 1.6
-    }
-
-    .btn-main {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: white;
-        color: #0F6E56;
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-size: 15px;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all .15s;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, .15)
-    }
-
-    .btn-main:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 24px rgba(0, 0, 0, .2)
-    }
-
-    .btn-main i {
-        font-size: 18px
-    }
-
-    .features {
-        padding: 3rem 1.5rem;
-        max-width: 600px;
-        margin: 0 auto
-    }
-
-    .features h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        margin-bottom: 1.5rem;
-        text-align: center
-    }
-
-    .feat-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px
-    }
-
-    @media (max-width: 400px) {
-        .feat-grid {
-            grid-template-columns: 1fr
-        }
-    }
-
-    .feat {
-        background: #f9fafb;
-        border-radius: 12px;
-        padding: 1rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px
-    }
-
-    .feat-icon {
-        width: 32px;
-        height: 32px;
-        background: #E1F5EE;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #1D9E75;
-        font-size: 16px;
-        flex-shrink: 0
-    }
-
-    .feat-text strong {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 2px
-    }
-
-    .feat-text span {
-        font-size: 12px;
-        color: #6b7280;
-        line-height: 1.4
-    }/* Spenden-Block */
-    .donate {
-        background: linear-gradient(135deg, #0F6E56, #1D9E75);
-        padding: 2.5rem 1.5rem;
-        text-align: center
-    }
-
-    .donate-inner {
-        max-width: 600px;
-        margin: 0 auto
-    }
-
-    .donate h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, .8);
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        margin-bottom: .75rem
-    }
-
-    .donate p {
-        color: rgba(255, 255, 255, .85);
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-        max-width: 420px;
-        margin-left: auto;
-        margin-right: auto
-    }
-
-    .btn-donate {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: white;
-        color: #0F6E56;
-        padding: 16px 32px;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all .15s;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, .2)
-    }
-
-    .btn-donate:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 24px rgba(0, 0, 0, .25)
-    }
-
-    .btn-donate i {
-        font-size: 20px
-    }
-
-    .install {
-        background: #f9fafb;
-        padding: 2.5rem 1.5rem;
-        border-top: 1px solid #e5e7eb
-    }
-
-    .install-inner {
-        max-width: 600px;
-        margin: 0 auto
-    }
-
-    .install h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        margin-bottom: 1.5rem;
-        text-align: center
-    }
-
-    .install-cards {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px
-    }
-
-    @media (max-width: 400px) {
-        .install-cards {
-            grid-template-columns: 1fr
-        }
-    }
-
-    .icard {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1rem
-    }
-
-    .icard h3 {
-        font-size: 13px;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: .75rem;
-        display: flex;
-        align-items: center;
-        gap: 6px
-    }
-
-    .icard ol {
-        padding-left: 1.1rem
-    }
-
-    .icard li {
-        font-size: 12px;
-        color: #6b7280;
-        line-height: 1.6
-    }
-
-    .cta {
-        padding: 2.5rem 1.5rem;
-        text-align: center;
-        max-width: 600px;
-        margin: 0 auto
-    }
-
-    .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #1D9E75;
-        color: white;
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-size: 15px;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all .15s
-    }
-
-    .btn-secondary:hover {
-        background: #0F6E56
-    }
-
-    .footer {
-        padding: 2rem 1.5rem;
-        border-top: 1px solid #e5e7eb;
-        text-align: center;
-        font-size: 12px;
-        color: #9ca3af;
-        line-height: 2
-    }
-
-    .footer a {
-        color: #6b7280;
-        text-decoration: none
-    }
-
-    .footer a:hover {
-        color: #1D9E75
-    }
-
-    .footer strong {
-        color: #374151
-    }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GBU – Baumsicherheitsbeurteilung</title>
+<meta name="description" content="Digitale Gefährdungsermittlung für Baumpfleger. Kostenlos, offline nutzbar, PDF-Export.">
+<meta name="theme-color" content="#1D9E75">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="app/vendor/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gr:#1D9E75;--grd:#0F6E56;--grl:#5DCAA5;
+  --grbg:rgba(29,158,117,.12);
+  --grad:linear-gradient(135deg,#22AC80 0%,#158765 100%);
+  --bg:#F2F5F3;--cb:#fff;--cb2:#F3F5F4;--cbr:#E5EAE7;
+  --ct:#101828;--ct2:#68746E;--ok-t:#0F6E56;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 6px 20px rgba(16,24,40,.05);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0C120F;--cb:#161D1A;--cb2:#1F2723;--cbr:#2A332E;
+    --ct:#ECF1EE;--ct2:#97A39C;--ok-t:#6ED2AC;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25)
+  }
+}
+body{font-family:var(--font);background:var(--bg);color:var(--ct);min-height:100vh}
+.hero{background:linear-gradient(160deg,#0F6E56 0%,#1D9E75 60%,#3DAA6A 100%);color:white;padding:calc(env(safe-area-inset-top) + 4rem) 1.5rem 3.5rem;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:auto -20% -60% -20%;height:80%;background:radial-gradient(ellipse at center,rgba(255,255,255,.14),transparent 70%);pointer-events:none}
+.hero-icon{width:88px;height:88px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:44px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.hero h1{font-size:2.1rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+.hero p{font-size:1rem;opacity:.9;max-width:420px;margin:0 auto 2rem;line-height:1.65}
+.btn-main{display:inline-flex;align-items:center;gap:8px;background:white;color:#0F6E56;padding:15px 30px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.btn-main i{font-size:18px}
+.section{padding:3rem 1.5rem;max-width:640px;margin:0 auto}
+.section h2{font-size:12px;font-weight:700;color:var(--ct2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.25rem;text-align:center}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.feat-grid{grid-template-columns:1fr}}
+.feat{background:var(--cb);border:1px solid var(--cbr);border-radius:16px;padding:1rem;display:flex;align-items:flex-start;gap:11px;box-shadow:var(--shadow)}
+.feat-icon{width:36px;height:36px;background:var(--grbg);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gr);font-size:18px;flex-shrink:0}
+.feat-text strong{display:block;font-size:14px;font-weight:600;color:var(--ct);margin-bottom:2px}
+.feat-text span{font-size:12px;color:var(--ct2);line-height:1.45}
+.install-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.install-cards{grid-template-columns:1fr}}
+.icard{background:var(--cb);border:1px solid var(--cbr);border-radius:16px;padding:1.125rem;box-shadow:var(--shadow)}
+.icard h3{font-size:14px;font-weight:700;color:var(--ct);margin-bottom:.75rem;display:flex;align-items:center;gap:7px}
+.icard h3 i{color:var(--gr)}
+.icard ol{padding-left:1.15rem}
+.icard li{font-size:13px;color:var(--ct2);line-height:1.7}
+.store-note{margin-top:1rem;background:var(--grbg);border:1px solid var(--grl);border-radius:14px;padding:.875rem 1rem;font-size:13px;color:var(--ok-t);line-height:1.6;display:flex;gap:9px;align-items:flex-start}
+.store-note i{font-size:17px;flex-shrink:0;margin-top:1px}
+.donate{background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:20px;padding:2rem 1.5rem;text-align:center;max-width:640px;margin:0 auto;box-shadow:0 10px 34px rgba(15,110,86,.3)}
+.donate h2{font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:.6rem;letter-spacing:-.01em;text-transform:none}
+.donate p{color:rgba(255,255,255,.88);font-size:14px;line-height:1.65;margin:0 auto 1.4rem;max-width:420px}
+.btn-donate{display:inline-flex;align-items:center;gap:9px;background:#fff;color:#0F6E56;padding:15px 30px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.btn-donate:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.btn-donate i{font-size:19px;color:#E24B4A}
+.cta{padding:1rem 1.5rem 3rem;text-align:center}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:white;padding:15px 30px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 4px 14px rgba(29,158,117,.35)}
+.btn-secondary:hover{filter:brightness(1.05)}
+.footer{padding:2rem 1.5rem calc(env(safe-area-inset-bottom) + 2rem);border-top:1px solid var(--cbr);text-align:center;font-size:12px;color:var(--ct2);line-height:2}
+.footer a{color:var(--ct2);text-decoration:none}
+.footer a:hover{color:var(--gr)}
+.footer strong{color:var(--ct)}
+</style>
 </head>
 <body>
 
-    <div class="hero">
-        <div class="hero-icon">🌳</div>
-        <h1>GBU</h1>
-        <p>Digitale Gefährdungsermittlung und Baumsicherheitsbeurteilung — kostenlos, offline, direkt am Handy.</p>
-        <a href="app/" class="btn-main">
-            <i class="ti ti-arrow-right"></i>
-             App öffnen
-        </a>
-    </div>
+<div class="hero">
+  <div class="hero-icon">🌳</div>
+  <h1>GBU</h1>
+  <p>Digitale Gefährdungsermittlung und Baumsicherheitsbeurteilung — kostenlos, offline, direkt am Handy.</p>
+  <a href="app/" class="btn-main"><i class="ti ti-arrow-right"></i> App öffnen</a>
+</div>
 
-    <div class="features">
-        <h2>Was kann die App?</h2>
-        <div class="feat-grid">
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-clipboard-check"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>Digitales Formular</strong>
-                    <span>Alle Felder geführt ausfüllen</span>
-                </div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-camera"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>Fotos</strong>
-                    <span>Baum und Einsatzort dokumentieren</span>
-                </div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-file-type-pdf"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>PDF-Export</strong>
-                    <span>Sauber formatiert, unterschriftsbereit</span>
-                </div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-share"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>Teilen</strong>
-                    <span>Per WhatsApp, Mail weiterleiten</span>
-                </div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-device-floppy"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>Speichern</strong>
-                    <span>Beurteilungen archivieren</span>
-                </div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <i class="ti ti-wifi-off"></i>
-                </div>
-                <div class="feat-text">
-                    <strong>Offline</strong>
-                    <span>Funktioniert ohne Internet</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="section">
+  <h2>Was kann die App?</h2>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-icon"><i class="ti ti-clipboard-check"></i></div><div class="feat-text"><strong>Digitales Formular</strong><span>Alle Felder geführt ausfüllen — SVLFG-konform</span></div></div>
+    <div class="feat"><div class="feat-icon"><i class="ti ti-camera"></i></div><div class="feat-text"><strong>Fotos</strong><span>Baum und Einsatzort dokumentieren</span></div></div>
+    <div class="feat"><div class="feat-icon"><i class="ti ti-file-type-pdf"></i></div><div class="feat-text"><strong>PDF-Export</strong><span>Sauber formatiert, unterschriftsbereit</span></div></div>
+    <div class="feat"><div class="feat-icon"><i class="ti ti-share"></i></div><div class="feat-text"><strong>Teilen</strong><span>Per WhatsApp, Mail weiterleiten</span></div></div>
+    <div class="feat"><div class="feat-icon"><i class="ti ti-device-floppy"></i></div><div class="feat-text"><strong>Speichern</strong><span>Beurteilungen archivieren</span></div></div>
+    <div class="feat"><div class="feat-icon"><i class="ti ti-wifi-off"></i></div><div class="feat-text"><strong>Offline</strong><span>Funktioniert ohne Internet</span></div></div>
+  </div>
+</div>
 
-    <div class="install">
-        <div class="install-inner">
-            <h2>Als App installieren</h2>
-            <div class="install-cards">
-                <div class="icard">
-                    <h3>
-                        <i class="ti ti-brand-apple"></i>
-                         iPhone / iPad
-                    </h3>
-                    <ol>
-                        <li>App in Safari öffnen</li>
-                        <li>Teilen-Button antippen</li>
-                        <li>„Zum Home-Bildschirm"</li>
-                        <li>„Hinzufügen" tippen</li>
-                    </ol>
-                </div>
-                <div class="icard">
-                    <h3>
-                        <i class="ti ti-brand-android"></i>
-                         Android
-                    </h3>
-                    <ol>
-                        <li>App in Chrome öffnen</li>
-                        <li>Drei-Punkte-Menü antippen</li>
-                        <li>„Zum Startbildschirm hinzufügen" oder „App installieren"</li>
-                        <li>„Installieren" oder „Hinzufügen" bestätigen</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
+<div class="section" style="padding-top:0">
+  <h2>Als App installieren</h2>
+  <div class="install-cards">
+    <div class="icard">
+      <h3><i class="ti ti-brand-apple"></i> iPhone / iPad</h3>
+      <ol>
+        <li>App in Safari öffnen</li>
+        <li>Teilen-Button antippen</li>
+        <li>„Zum Home-Bildschirm"</li>
+        <li>„Hinzufügen" tippen</li>
+      </ol>
     </div>
+    <div class="icard">
+      <h3><i class="ti ti-brand-android"></i> Android</h3>
+      <ol>
+        <li>App in Chrome öffnen</li>
+        <li>Drei-Punkte-Menü</li>
+        <li>„App installieren"</li>
+        <li>Bestätigen</li>
+      </ol>
+    </div>
+  </div>
+  <div class="store-note"><i class="ti ti-rocket"></i><span><strong>Bald im App Store &amp; bei Google Play:</strong> Die GBU App erscheint demnächst als native App — folge <a href="https://instagram.com/ropesconnectingpeople" style="color:inherit;font-weight:700">@ropesconnectingpeople</a> für den Launch.</span></div>
+</div>
 
-    <div class="donate">
-        <div class="donate-inner">
-            <h2>Die App gefällt dir?</h2>
-            <p>GBU ist kostenlos und bleibt es auch. Wer möchte, kann die Weiterentwicklung mit einer kleinen Spende unterstützen.</p>
-            <a href="https://paypal.me/JosuaHundertmark" target="_blank" class="btn-donate">
-                <i class="ti ti-heart"></i>
-                 Spende via PayPal
-                    
-            </a>
-        </div>
-    </div>
+<div class="section" style="padding-top:0">
+  <div class="donate">
+    <h2>Die App gefällt dir?</h2>
+    <p>Die Web-Version ist kostenlos und bleibt es auch. Wer die Weiterentwicklung unterstützen möchte, kann das mit einer kleinen Spende tun — oder bald mit dem Kauf der App im App Store.</p>
+    <a href="https://paypal.me/JosuaHundertmark" target="_blank" class="btn-donate">
+      <i class="ti ti-heart"></i> Spende via PayPal
+    </a>
+  </div>
+</div>
 
-    <div class="cta">
-        <a href="app/" class="btn-secondary">
-            <i class="ti ti-arrow-right"></i>
-             Jetzt loslegen
-        </a>
-    </div>
+<div class="cta">
+  <a href="app/" class="btn-secondary"><i class="ti ti-arrow-right"></i> Jetzt loslegen</a>
+</div>
 
-    <div class="footer">
-        <strong>Josua Hundertmark</strong>
-        <br>
-        <a href="https://www.ropesconnectingpeople.com">www.ropesconnectingpeople.com</a>
-        <br>
-        <a href="mailto:hey@ropesconnectingpeople.com">hey@ropesconnectingpeople.com</a>
-         · 
-          
-        <a href="https://instagram.com/ropesconnectingpeople">@ropesconnectingpeople</a>
-    </div>
+<div class="footer">
+  <strong>Josua Hundertmark</strong><br>
+  <a href="https://www.ropesconnectingpeople.com">www.ropesconnectingpeople.com</a><br>
+  <a href="mailto:hey@ropesconnectingpeople.com">hey@ropesconnectingpeople.com</a> ·
+  <a href="https://instagram.com/ropesconnectingpeople">@ropesconnectingpeople</a>
+</div>
 
 </body>
 </html>

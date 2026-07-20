@@ -1,10 +1,11 @@
-const CACHE = 'gbu-v1.3';
+const CACHE = 'gbu-v2.0';
 const ASSETS = [
   './',
   './index.html',
   '../manifest.json',
-  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  './vendor/tabler-icons.min.css',
+  './vendor/jspdf.umd.min.js',
+  './vendor/fonts/tabler-icons.woff2'
 ];
 
 self.addEventListener('install', e => {
