@@ -59,6 +59,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--ct);min-height:100
 .btn-donate{display:inline-flex;align-items:center;gap:9px;background:#fff;color:#0F6E56;padding:15px 30px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 6px 24px rgba(0,0,0,.2)}
 .btn-donate:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
 .btn-donate i{font-size:19px;color:#E24B4A}
+.gfm-wrap{max-width:420px;margin:0 auto;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.gfm-wrap .gfm-embed iframe{display:block}
 .cta{padding:1rem 1.5rem 3rem;text-align:center}
 .btn-secondary{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:white;padding:15px 30px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 4px 14px rgba(29,158,117,.35)}
 .btn-secondary:hover{filter:brightness(1.05)}
@@ -117,7 +119,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--ct);min-height:100
 <div class="section" style="padding-top:0">
   <div class="donate">
     <h2>Die App gefällt dir?</h2>
-    <p>Die Web-Version ist kostenlos und bleibt es auch. Wer die Weiterentwicklung unterstützen möchte, kann das mit einer kleinen Spende tun — oder bald mit dem Kauf der App im App Store.</p>
+    <p>Die Web-Version ist kostenlos und bleibt es auch. Damit die GBU App in den App Store und zu Google Play kommt, läuft gerade ein Crowdfunding — jeder Beitrag hilft:</p>
+    <div class="gfm-wrap">
+      <div class="gfm-embed" data-url="https://www.gofundme.com/f/die-gbu-app-kommt-in-den-app-store-macht-ihr-mit/widget/large?attribution_id=sl%3Adc1e2a60-bd26-40fe-8c6a-bd635942203e"></div>
+    </div>
+    <p style="margin-top:1rem">Oder ganz unkompliziert:</p>
     <a href="https://paypal.me/JosuaHundertmark" target="_blank" class="btn-donate">
       <i class="ti ti-heart"></i> Spende via PayPal
     </a>
@@ -135,5 +141,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--ct);min-height:100
   <a href="https://instagram.com/ropesconnectingpeople">@ropesconnectingpeople</a>
 </div>
 
+<script defer src="https://www.gofundme.com/static/js/embed.js"></script>
 </body>
 </html>

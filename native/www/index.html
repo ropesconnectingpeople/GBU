@@ -961,6 +961,24 @@
         background: var(--cb2)
     }
 
+    /* Baumart-Autocomplete: Dropdown darf breiter sein als die schmale Spalte */
+    #ba-list {
+        right: auto;
+        min-width: 200px;
+        width: max-content;
+        max-width: min(320px, 82vw)
+    }
+
+    .ba-hint {
+        margin-top: 8px;
+        padding: 9px 12px;
+        border-radius: 10px;
+        background: var(--warn-bg);
+        color: var(--warn-t);
+        font-size: 12.5px;
+        line-height: 1.5
+    }
+
     /* ---------- Pro: Modal, Chips ---------- */
     .modal-bg {
         position: fixed;
@@ -1656,7 +1674,10 @@
                 <div class="r3">
                     <div>
                         <label class="fl">Baumart</label>
-                        <input type="text" id="baumart" placeholder="z.B. Eiche">
+                        <div class="ac-wrap">
+                            <input type="text" id="baumart" placeholder="z.B. Eiche" autocomplete="off" oninput="baSearch(this.value)" onfocus="baSearch(this.value)">
+                            <div class="ac-list" id="ba-list"></div>
+                        </div>
                     </div>
                     <div>
                         <label class="fl">Höhe (m)</label>
@@ -1667,6 +1688,7 @@
                         <input type="text" id="stamm" placeholder="z.B. 40">
                     </div>
                 </div>
+                <div id="baHint" class="ba-hint" style="display:none"></div>
                 <label class="fl">Ausrichtung</label>
                 <div class="rg">
                     <label class="ri">
@@ -2193,8 +2215,58 @@
     }
     document.addEventListener('click', e => {
         if (!e.target.closest('.ac-wrap'))
-            document.getElementById('ac-list').classList.remove('show');
+            document.querySelectorAll('.ac-list').forEach(l => l.classList.remove('show'));
     });
+
+    // Baumart-Autocomplete (offline, häufige Arten in Deutschland)
+    const BAUMARTEN = ['Ahorn', 'Amberbaum', 'Apfelbaum', 'Bergahorn', 'Birke', 'Birnbaum', 'Blutbuche', 'Buche (Rotbuche)', 'Douglasie', 'Eberesche', 'Eibe', 'Eiche', 'Erle', 'Esche', 'Esskastanie', 'Feldahorn', 'Fichte', 'Ginkgo', 'Hainbuche', 'Hybridpappel', 'Kiefer', 'Kirschbaum', 'Lärche', 'Linde', 'Mammutbaum', 'Mehlbeere', 'Pappel', 'Platane', 'Robinie', 'Rosskastanie', 'Roteiche', 'Salweide', 'Schwarzkiefer', 'Schwarznuss', 'Schwarzpappel', 'Silberpappel', 'Silberweide', 'Sommerlinde', 'Spitzahorn', 'Stieleiche', 'Tanne', 'Thuja', 'Traubeneiche', 'Trauerweide', 'Ulme', 'Vogelkirsche', 'Waldkiefer', 'Walnuss', 'Weide', 'Winterlinde', 'Zeder', 'Zerreiche', 'Zitterpappel'];
+    function baSearch(v) {
+        const list = document.getElementById('ba-list');
+        // bei mehreren Arten (Komma-getrennt) auf dem letzten Teil suchen
+        const parts = (v || '').split(',');
+        const q = parts[parts.length - 1].trim().toLowerCase();
+        baHintUpdate();
+        if (!q) {
+            list.classList.remove('show');
+            return;
+        }
+        const starts = BAUMARTEN.filter(b => b.toLowerCase().startsWith(q));
+        const contains = BAUMARTEN.filter(b => !b.toLowerCase().startsWith(q) && b.toLowerCase().includes(q));
+        const hits = starts.concat(contains).slice(0, 8);
+        if (!hits.length || (hits.length === 1 && hits[0].toLowerCase() === q)) {
+            list.classList.remove('show');
+            return;
+        }
+        list.innerHTML = hits.map(b => `<div class="ac-item" onclick="baPick('${b.replace(/'/g, "\\'")}')">${b}</div>`).join('');
+        list.classList.add('show');
+    }
+    function baPick(name) {
+        const inp = document.getElementById('baumart');
+        const parts = inp.value.split(',');
+        parts[parts.length - 1] = (parts.length > 1 ? ' ' : '') + name;
+        inp.value = parts.join(',');
+        document.getElementById('ba-list').classList.remove('show');
+        baHintUpdate();
+    }
+    function baHintUpdate() {
+        const el = document.getElementById('baHint');
+        if (!el)
+            return;
+        const v = (document.getElementById('baumart')?.value || '').toLowerCase();
+        const hints = [];
+        if (/eiche/.test(v))
+            hints.push('<strong>Eiche:</strong> An Eichenprozessionsspinner (EPS) denken – Krone vor dem Einstieg auf Gespinstnester prüfen.');
+        if (/pappel|robinie|weide/.test(v))
+            hints.push('<strong>Erhöhte Bruchgefahr</strong> (Grünast-/Totholzbruch typisch für diese Art) – Ankerpunkte und Totholz besonders kritisch prüfen.');
+        if (/esche/.test(v) && !/eberesche|mehlbeere/.test(v))
+            hints.push('<strong>Esche:</strong> Eschentriebsterben möglich – Totholz und Kronenstabilität besonders prüfen.');
+        if (hints.length) {
+            el.innerHTML = '<i class="ti ti-alert-triangle"></i> ' + hints.join('<br>');
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
 
     // Dopamin
     function showDopamin() {
@@ -2397,6 +2469,7 @@
         renderPhotos();
         editId = null;
         clearSig();
+        baHintUpdate();
         goTo(0);
     }
     function collectChecks() {
@@ -2513,6 +2586,7 @@
                 });
             });
         }
+        baHintUpdate();
     }
     async function saveAssessment() {
         const fd = collectFD();
@@ -3233,7 +3307,13 @@
     }
 
     /* ===== Pro-Funktionen (Store-Version): Logo, Team-Speicher, Vorlagen ===== */
-    const PRO = isNativeApp() || /[?&]pro/.test(location.search);
+    /* Pro ist nur in der Store-App aktiv. Zum Testen im Browser (nicht dokumentiert):
+       einmalig in der Konsole  localStorage.setItem('gbuDev','1')  setzen. */
+    let PRO = isNativeApp();
+    try {
+        if (!PRO && localStorage.getItem('gbuDev') === '1')
+            PRO = true;
+    } catch (e) {}
     let proLogo = null,
         proCompany = '';
 
