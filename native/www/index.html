@@ -118,13 +118,28 @@
     }
 
     .ah-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         letter-spacing: -.01em;
         color: var(--ct);
-        white-space: nowrap;
+        line-height: 1.25;
         overflow: hidden;
-        text-overflow: ellipsis
+        hyphens: auto;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical
+    }
+
+    /* Auf schmalen Screens: Header-Buttons nur mit Icon,
+       damit der Titel voll ausgeschrieben Platz hat */
+    @media (max-width: 480px) {
+        .ah-title {
+            font-size: 14px
+        }
+
+        #modeBtn .btn-label {
+            display: none
+        }
     }
 
     .ah-sub {
@@ -567,10 +582,6 @@
         transform: scale(.97)
     }
 
-    .btn:hover {
-        background: var(--cb2)
-    }
-
     .btn:disabled {
         opacity: .4;
         cursor: not-allowed
@@ -583,18 +594,27 @@
         box-shadow: 0 4px 14px rgba(29, 158, 117, .35)
     }
 
-    .btn-g:hover {
-        filter: brightness(1.05)
-    }
-
     .btn-r {
         background: var(--err-bg);
         border-color: transparent;
         color: var(--err-t)
     }
 
-    .btn-r:hover {
-        filter: brightness(.97)
+    /* Hover nur auf Geräten mit echtem Hover (Maus) – verhindert
+       "hängenden" Hover-Zustand nach Tippen auf Touch-Geräten */
+    @media (hover: hover) {
+        .btn:hover {
+            background: var(--cb2)
+        }
+
+        .btn-g:hover {
+            background: var(--grad);
+            filter: brightness(1.05)
+        }
+
+        .btn-r:hover {
+            filter: brightness(.97)
+        }
     }
 
     .btn-sm {
@@ -1249,8 +1269,7 @@
             <div class="ah-brand">
                 <div class="ah-logo"><i class="ti ti-tree"></i></div>
                 <div style="min-width:0">
-                    <div class="ah-title">Baumsicherheit</div>
-                    <div class="ah-sub">Digitale Gefährdungsermittlung</div>
+                    <div class="ah-title">Digitale Gefährdungsermittlung</div>
                 </div>
             </div>
             <div style="display:flex;gap:8px;flex-shrink:0">
@@ -1259,7 +1278,7 @@
                 </button>
                 <button class="btn" id="modeBtn" onclick="toggleMode()">
                     <i class="ti ti-archive"></i>
-                     Archiv
+                    <span class="btn-label">Archiv</span>
                     <span class="cnt" id="savedCount">0</span>
                 </button>
             </div>
@@ -2210,7 +2229,7 @@
         if (lv.style.display === 'none') {
             lv.style.display = 'block';
             fv.style.display = 'none';
-            btn.innerHTML = '<i class="ti ti-pencil"></i> Zum Formular';
+            btn.innerHTML = '<i class="ti ti-pencil"></i> <span class="btn-label">Zum Formular</span>';
             loadList();
         }
         else {
@@ -2278,7 +2297,7 @@
             editId = id;
             document.getElementById('listView').style.display = 'none';
             document.getElementById('formView').style.display = 'block';
-            document.getElementById('modeBtn').innerHTML = '<i class="ti ti-archive"></i> Archiv <span class="cnt" id="savedCount">0</span>';
+            document.getElementById('modeBtn').innerHTML = '<i class="ti ti-archive"></i> <span class="btn-label">Archiv</span> <span class="cnt" id="savedCount">0</span>';
             updateCount();
             goTo(6);
             buildSummary();
