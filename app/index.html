@@ -3060,6 +3060,20 @@
     function isNativeApp() {
         return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
     }
+    /* Kurzer, share-sicherer Dateiname: keine Kommas/Umlaute/Überlänge,
+       sonst scheitert z.B. die WhatsApp-Share-Extension auf iOS */
+    function pdfFileName(fd) {
+        let ort = (fd.einsatzort || '').split(',').slice(0, 2).join(' ').trim();
+        ort = ort.toLowerCase()
+            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+        const dat = (fd.datum || '').replace(/-/g, '');
+        return ['gbu', ort, dat].filter(Boolean).join('_') + '.pdf';
+    }
+    function shareText(fd) {
+        const ort = (fd.einsatzort || '').split(',').slice(0, 2).join(',').trim();
+        return 'Baumsicherheitsbeurteilung' + (ort ? ' – ' + ort : '');
+    }
     async function nativeSharePDF(doc, fn, text) {
         const P = window.Capacitor.Plugins;
         const base64 = doc.output('datauristring').split(',')[1];
@@ -3089,9 +3103,9 @@
             }
             const fd = collectFD();
             const doc = await buildPDF(fd, photos);
-            const fn = 'baumsicherheit_' + (fd.einsatzort || 'export') + '_' + (fd.datum || '').replace(/-/g, '') + '.pdf';
+            const fn = pdfFileName(fd);
             if (isNativeApp()) {
-                await nativeSharePDF(doc, fn, 'Baumsicherheitsbeurteilung' + (fd.einsatzort ? ' – ' + fd.einsatzort : ''));
+                await nativeSharePDF(doc, fn, shareText(fd));
                 toast('PDF erstellt!', 'ok');
             } else {
                 doc.save(fn);
@@ -3122,9 +3136,9 @@
             }
             const fd = collectFD();
             const doc = await buildPDF(fd, photos);
-            const fn = 'baumsicherheit_' + (fd.einsatzort || 'beurteilung') + '.pdf';
+            const fn = pdfFileName(fd);
             if (isNativeApp()) {
-                await nativeSharePDF(doc, fn, 'Baumsicherheitsbeurteilung' + (fd.einsatzort ? ' – ' + fd.einsatzort : ''));
+                await nativeSharePDF(doc, fn, shareText(fd));
                 return;
             }
             const blob = doc.output('blob');
@@ -3134,16 +3148,17 @@
             if (navigator.canShare && navigator.canShare({
                 files: [file]
             })) {
+                /* Bewusst NUR die Datei, kein text-Feld: WhatsApp auf iOS
+                   schlägt sonst beim Senden gern fehl */
                 await navigator.share({
                     files: [file],
-                    title: 'Baumsicherheitsbeurteilung',
-                    text: 'Baumsicherheitsbeurteilung' + (fd.einsatzort ? ' – ' + fd.einsatzort : '')
+                    title: 'Baumsicherheitsbeurteilung'
                 });
             }
             else if (navigator.share) {
                 await navigator.share({
                     title: 'Baumsicherheitsbeurteilung',
-                    text: 'Baumsicherheitsbeurteilung' + (fd.einsatzort ? ' für ' + fd.einsatzort : '')
+                    text: shareText(fd)
                 });
             }
             else {

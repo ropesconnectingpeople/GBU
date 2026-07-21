@@ -1,4 +1,4 @@
-const CACHE = 'gbu-v2.2';
+const CACHE = 'gbu-v2.3';
 const ASSETS = [
   './',
   './index.html',
