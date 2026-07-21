@@ -2284,6 +2284,65 @@
         setupRadios();
         await updateCount();
         initSig();
+        await restoreDraft();
+        /* Entwurf-Autosicherung: jede Eingabe/Auswahl im Formular sichern */
+        const fv = document.getElementById('formView');
+        fv.addEventListener('input', scheduleDraft);
+        fv.addEventListener('click', scheduleDraft);
+    }
+    /* ===== Entwurf-Autosicherung (rettet nicht gespeicherte Beurteilungen) ===== */
+    let draftT = null,
+        draftRestoring = false;
+    function scheduleDraft() {
+        if (draftRestoring)
+            return;
+        clearTimeout(draftT);
+        draftT = setTimeout(saveDraft, 800);
+    }
+    async function saveDraft() {
+        try {
+            const fd = collectFD();
+            await window.storage.set('gbu_draft', JSON.stringify({
+                fd,
+                photos: photos.map(p => ({
+                    dataUrl: p.dataUrl,
+                    caption: p.caption || ''
+                })),
+                editId,
+                ts: new Date().toISOString()
+            }));
+        } catch (e) {}
+    }
+    async function clearDraft() {
+        clearTimeout(draftT);
+        try {
+            await window.storage.delete('gbu_draft');
+        } catch (e) {}
+    }
+    async function restoreDraft() {
+        try {
+            const r = await window.storage.get('gbu_draft');
+            const d = JSON.parse(r.value);
+            if (!d || !d.fd)
+                return;
+            /* nur wiederherstellen, wenn der Entwurf echten Inhalt hat */
+            const hasContent = d.fd.einsatzort || d.fd.baumart || (d.fd.persons || []).some(p => p.name) || (d.photos || []).length;
+            if (!hasContent)
+                return;
+            draftRestoring = true;
+            loadFormData(d.fd);
+            photos = (d.photos || []).map(p => ({
+                id: Math.random(),
+                dataUrl: p.dataUrl,
+                caption: p.caption || ''
+            }));
+            renderPhotos();
+            editId = d.editId || null;
+            toast('Nicht gespeicherter Entwurf wiederhergestellt', 'ok');
+        } catch (e) {}
+        finally {
+            draftRestoring = false;
+        }
     }
     async function updateCount() {
         try {
@@ -2470,6 +2529,7 @@
         editId = null;
         clearSig();
         baHintUpdate();
+        clearDraft();
         goTo(0);
     }
     function collectChecks() {
@@ -2607,11 +2667,17 @@
         };
         try {
             await window.storage.set('bsa_' + uuid, JSON.stringify(data));
-        } catch (e) {}
+            /* Kontrolle: wirklich geschrieben? Nie stillschweigend "Erfolg" zeigen */
+            await window.storage.get('bsa_' + uuid);
+        } catch (e) {
+            toast('Speichern fehlgeschlagen! Bitte PDF exportieren, damit nichts verloren geht. (' + (e && e.message || 'Speicherfehler') + ')', 'err');
+            return;
+        }
         try {
             if (PRO)
                 await rosterMerge(fd.persons);
         } catch (e) {}
+        await clearDraft();
         updateCount();
         showDopamin();
     }
@@ -3270,55 +3336,91 @@
         return document.getElementById('sigCanvas')?.toDataURL('image/png');
     }
 
+    /* ===== Speicher: IndexedDB (großes Kontingent) statt localStorage (~5 MB).
+       Bestehende Daten werden einmalig migriert; localStorage bleibt Fallback. ===== */
+    const gbuIDB = {
+        _db: null,
+        open() {
+            if (this._db)
+                return Promise.resolve(this._db);
+            return new Promise((res, rej) => {
+                const r = indexedDB.open('gbu-store', 1);
+                r.onupgradeneeded = () => r.result.createObjectStore('kv');
+                r.onsuccess = () => {
+                    this._db = r.result;
+                    res(this._db);
+                };
+                r.onerror = () => rej(r.error || new Error('IndexedDB nicht verfügbar'));
+            });
+        },
+        tx(mode, fn) {
+            return this.open().then(db => new Promise((res, rej) => {
+                const req = fn(db.transaction('kv', mode).objectStore('kv'));
+                req.onsuccess = () => res(req.result);
+                req.onerror = () => rej(req.error);
+            }));
+        },
+        get(k) { return this.tx('readonly', s => s.get(k)); },
+        set(k, v) { return this.tx('readwrite', s => s.put(v, k)); },
+        del(k) { return this.tx('readwrite', s => s.delete(k)); },
+        keys() { return this.tx('readonly', s => s.getAllKeys()); }
+    };
     if (!window.storage) {
         window.storage = {
-            _d: {},
             async get(k) {
-                if (k in this._d)
-                    return {
-                        value: this._d[k]
-                    };
-                const v = localStorage.getItem(k);
-                if (v !== null) {
-                    this._d[k] = v;
-                    return {
-                        value: v
-                    };
-                }
+                try {
+                    const v = await gbuIDB.get(k);
+                    if (v !== undefined)
+                        return { value: v };
+                } catch (e) {}
+                const lv = localStorage.getItem(k);
+                if (lv !== null)
+                    return { value: lv };
                 throw new Error('Not found');
             },
             async set(k, v) {
-                this._d[k] = v;
-                localStorage.setItem(k, v);
-                return {
-                    key: k,
-                    value: v
-                };
+                await gbuIDB.set(k, v); // wirft bei echtem Fehler -> Aufrufer zeigt Meldung
+                try { localStorage.removeItem(k); } catch (e) {}
+                return { key: k, value: v };
             },
             async delete(k) {
-                delete this._d[k];
-                localStorage.removeItem(k);
-                return {
-                    key: k,
-                    deleted: true
-                };
+                try { await gbuIDB.del(k); } catch (e) {}
+                try { localStorage.removeItem(k); } catch (e) {}
+                return { key: k, deleted: true };
             },
             async list(prefix) {
-                const keys = [];
+                const set = new Set();
+                try {
+                    (await gbuIDB.keys()).forEach(k => {
+                        if (String(k).startsWith(prefix))
+                            set.add(k);
+                    });
+                } catch (e) {}
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
                     if (k && k.startsWith(prefix))
-                        keys.push(k);
+                        set.add(k);
                 }
-                Object.keys(this._d).forEach(k => {
-                    if (k.startsWith(prefix) && !keys.includes(k))
-                        keys.push(k);
-                });
-                return {
-                    keys
-                };
+                return { keys: [...set] };
             }
         };
+        /* Einmalige Migration alter localStorage-Daten nach IndexedDB */
+        (async () => {
+            try {
+                const toMove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && (k.startsWith('bsa_') || k.startsWith('gbu_')))
+                        toMove.push(k);
+                }
+                for (const k of toMove) {
+                    const v = localStorage.getItem(k);
+                    if (v !== null && (await gbuIDB.get(k)) === undefined)
+                        await gbuIDB.set(k, v);
+                    localStorage.removeItem(k);
+                }
+            } catch (e) {}
+        })();
     }
 
     /* ===== Pro-Funktionen (Store-Version): Logo, Team-Speicher, Vorlagen ===== */
