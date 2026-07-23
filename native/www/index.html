@@ -961,6 +961,17 @@
         background: var(--cb2)
     }
 
+    .koord {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--ct2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        -webkit-tap-highlight-color: transparent
+    }
+
     /* Baumart-Autocomplete: Dropdown darf breiter sein als die schmale Spalte */
     #ba-list {
         right: auto;
@@ -1358,6 +1369,9 @@
                                 </button>
                             </div>
                             <div class="ac-list" id="ac-list"></div>
+                        </div>
+                        <div class="koord" id="koordZeile" style="display:none" onclick="copyKoord()" title="Antippen zum Kopieren">
+                            <i class="ti ti-map-pin"></i> <span id="koordText"></span>
                         </div>
                     </div>
                     <div>
@@ -2140,7 +2154,26 @@
         sichtverbindung: 'Ruf-/Sichtverbindung'
     };
 
-    // GPS
+    // GPS + Koordinaten (fürs Notfall-Durchgeben an die Leitstelle)
+    let gpsKoord = '';
+    function setKoord(k) {
+        gpsKoord = k || '';
+        const z = document.getElementById('koordZeile');
+        const t = document.getElementById('koordText');
+        if (z && t) {
+            t.textContent = gpsKoord;
+            z.style.display = gpsKoord ? 'flex' : 'none';
+        }
+        scheduleDraft();
+    }
+    async function copyKoord() {
+        if (!gpsKoord)
+            return;
+        try {
+            await navigator.clipboard.writeText(gpsKoord);
+            toast('Koordinaten kopiert', 'ok');
+        } catch (e) {}
+    }
     async function getGPS() {
         const btn = document.getElementById('gpsBtn');
         if (!navigator.geolocation) {
@@ -2152,6 +2185,9 @@
         navigator.geolocation.getCurrentPosition(async pos => {
             try {
                 const {latitude: lat, longitude: lon} = pos.coords;
+                /* Koordinaten sofort merken – auch wenn die Adresssuche scheitert
+                   (offline im Bestand sind gerade die Koordinaten Gold wert) */
+                setKoord(lat.toFixed(5) + ', ' + lon.toFixed(5));
                 const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
                     headers: {
                         'Accept-Language': 'de'
@@ -2169,7 +2205,7 @@
                     toast('Adresse nicht gefunden', 'err');
                 }
             } catch (e) {
-                toast('Fehler bei der Adressermittlung', 'err');
+                toast('Adresse nicht ermittelbar – Koordinaten gespeichert', 'ok');
             }
             btn.innerHTML = '<i class="ti ti-gps"></i> GPS';
             btn.disabled = false;
@@ -2529,6 +2565,7 @@
         editId = null;
         clearSig();
         baHintUpdate();
+        setKoord('');
         clearDraft();
         goTo(0);
     }
@@ -2555,6 +2592,7 @@
         const einsatzTyp = etypSelected.join(', ');
         return {
             einsatzort: document.getElementById('einsatzort')?.value || '',
+            koordinaten: gpsKoord,
             datum: document.getElementById('datum')?.value || '',
             aufseher: document.getElementById('aufseher')?.value || '',
             einsatzTyp,
@@ -2585,6 +2623,7 @@
                 e.value = v || '';
         };
         set('einsatzort', d.einsatzort);
+        setKoord(d.koordinaten);
         set('datum', d.datum || new Date().toISOString().split('T')[0]);
         set('aufseher', d.aufseher);
         set('vonZeit', d.vonZeit);
@@ -2882,6 +2921,8 @@
         y = 22;
         sec('EINSATZ');
         line('Einsatzort', fd.einsatzort);
+        if (fd.koordinaten)
+            line('Koordinaten', fd.koordinaten);
         line('Datum', fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '');
         line('Aufsichtsführender', fd.aufseher);
         line('Dauer', (fd.vonZeit || '–') + ' bis ' + (fd.bisZeit || '–'));
