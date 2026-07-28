@@ -2365,6 +2365,18 @@
             const hasContent = d.fd.einsatzort || d.fd.baumart || (d.fd.persons || []).some(p => p.name) || (d.photos || []).length;
             if (!hasContent)
                 return;
+            /* Entwurf einer bereits GESPEICHERTEN Beurteilung nicht erneut hochholen:
+               entspricht der Entwurf 1:1 dem Archiv-Stand, frisch starten statt
+               die alte GBU wieder ins Formular zu laden (sonst Überschreib-Gefahr) */
+            if (d.editId) {
+                try {
+                    const saved = JSON.parse((await window.storage.get('bsa_' + d.editId)).value);
+                    if (saved && JSON.stringify(saved.formData) === JSON.stringify(d.fd) && (saved.photos || []).length === (d.photos || []).length) {
+                        await clearDraft();
+                        return;
+                    }
+                } catch (e) {}
+            }
             draftRestoring = true;
             loadFormData(d.fd);
             photos = (d.photos || []).map(p => ({
@@ -2374,7 +2386,7 @@
             }));
             renderPhotos();
             editId = d.editId || null;
-            toast('Nicht gespeicherter Entwurf wiederhergestellt', 'ok');
+            toast(editId ? 'Ungespeicherte Änderungen wiederhergestellt' : 'Nicht gespeicherter Entwurf wiederhergestellt', 'ok');
         } catch (e) {}
         finally {
             draftRestoring = false;
