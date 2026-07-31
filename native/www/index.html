@@ -1758,7 +1758,14 @@
                         </div>
                         <span class="clbl">Fallbereich frei</span>
                     </div>
+                    <div class="ci" data-key="gebaeude" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Gebäude</span>
+                    </div>
                 </div>
+                <input type="text" id="umfeldSonstiges" placeholder="Sonstiges im Umfeld, z.B. Gewässer, Teich, Straße..." style="margin-top:8px">
                 <label class="fl">Stammfuß / Stamm</label>
                 <div class="cg">
                     <div class="ci" data-key="defekt_stamm" onclick="tc(this)">
@@ -2121,6 +2128,7 @@
         wurzelverletzung: 'Wurzelverletzung',
         pilz_umfeld: 'Pilzfruchtkörper (Umfeld)',
         fallbereich_umf: 'Fallbereich frei (Umfeld)',
+        gebaeude: 'Gebäude',
         defekt_stamm: 'Defektsymptome',
         pilz_stamm: 'Pilzfruchtkörper (Stamm)',
         faulstellen_stamm: 'Faulstellen',
@@ -2555,7 +2563,7 @@
         el.classList.add('sel');
     }
     function resetForm() {
-        ['einsatzort', 'aufseher', 'vonZeit', 'bisZeit', 'baumart', 'baumhoehe', 'stamm', 'arbeitenSonstiges', 'bemerkung', 'einsatzSonstiges', 'besonderheiten', 'verantwortlicher'].forEach(id => {
+        ['einsatzort', 'aufseher', 'vonZeit', 'bisZeit', 'baumart', 'baumhoehe', 'stamm', 'arbeitenSonstiges', 'umfeldSonstiges', 'bemerkung', 'einsatzSonstiges', 'besonderheiten', 'verantwortlicher'].forEach(id => {
             const e = document.getElementById(id);
             if (e)
                 e.value = '';
@@ -2613,6 +2621,7 @@
             persons,
             checks: collectChecks(),
             arbeitenSonstiges: document.getElementById('arbeitenSonstiges')?.value || '',
+            umfeldSonstiges: document.getElementById('umfeldSonstiges')?.value || '',
             baumart: document.getElementById('baumart')?.value || '',
             baumhoehe: document.getElementById('baumhoehe')?.value || '',
             stamm: document.getElementById('stamm')?.value || '',
@@ -2641,6 +2650,7 @@
         set('vonZeit', d.vonZeit);
         set('bisZeit', d.bisZeit);
         set('arbeitenSonstiges', d.arbeitenSonstiges);
+        set('umfeldSonstiges', d.umfeldSonstiges);
         set('baumart', d.baumart);
         set('baumhoehe', d.baumhoehe);
         set('stamm', d.stamm);
@@ -3032,7 +3042,11 @@
             k: 'pilz_umfeld'
         }, {
             k: 'fallbereich_umf'
+        }, {
+            k: 'gebaeude'
         }]);
+        if (fd.umfeldSonstiges)
+            line('Sonstiges Umfeld', fd.umfeldSonstiges);
         sec('STAMMFUSS / STAMM');
         chk([{
             k: 'defekt_stamm'
