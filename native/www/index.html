@@ -2945,11 +2945,11 @@
            Blick sehen, für welchen Einsatz dieses PDF gilt */
         if (fd.einsatzort) {
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(16);
+            doc.setFontSize(20);
             doc.setTextColor(20, 20, 20);
             const ortLines = doc.splitTextToSize(fd.einsatzort, CW);
-            doc.text(ortLines, M, y + 4);
-            y += 4 + ortLines.length * 6.5;
+            doc.text(ortLines, M, y + 5);
+            y += 5 + ortLines.length * 8;
             const sub = [
                 fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '',
                 fd.koordinaten || ''
@@ -3184,6 +3184,30 @@
             try {
                 doc.addImage(fd.signatureDataUrl, 'PNG', M + 90, y - 20, 70, 18);
             } catch (e) {}
+        }
+        /* Einsatzort-Box ganz unten: fett eingerahmt, super sichtbar */
+        if (fd.einsatzort) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            const boxLines = doc.splitTextToSize(fd.einsatzort, CW - 12);
+            const boxH = 14 + boxLines.length * 7.5;
+            if (y + 12 + boxH > 285) {
+                doc.addPage();
+                y = 14;
+            } else {
+                y += 12;
+            }
+            doc.setDrawColor(15, 110, 86);
+            doc.setLineWidth(1.2);
+            doc.setFillColor(235, 248, 243);
+            doc.roundedRect(M, y, CW, boxH, 2, 2, 'FD');
+            doc.setLineWidth(0.2);
+            doc.setFontSize(7.5);
+            doc.setTextColor(15, 110, 86);
+            doc.text('EINSATZORT', M + 6, y + 6);
+            doc.setFontSize(18);
+            doc.setTextColor(20, 20, 20);
+            doc.text(boxLines, M + 6, y + 13.5);
         }
         for (let i = 0; i < pl.length; i++) {
             doc.addPage();
