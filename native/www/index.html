@@ -2941,6 +2941,29 @@
             });
         }
         y = 22;
+        /* Einsatzort groß und fett – die Crew auf der Baustelle muss auf einen
+           Blick sehen, für welchen Einsatz dieses PDF gilt */
+        if (fd.einsatzort) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.setTextColor(20, 20, 20);
+            const ortLines = doc.splitTextToSize(fd.einsatzort, CW);
+            doc.text(ortLines, M, y + 4);
+            y += 4 + ortLines.length * 6.5;
+            const sub = [
+                fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '',
+                fd.koordinaten || ''
+            ].filter(Boolean).join('  ·  ');
+            if (sub) {
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(sub, M, y);
+                y += 4;
+            }
+            doc.setTextColor(30, 30, 30);
+            y += 1;
+        }
         sec('EINSATZ');
         line('Einsatzort', fd.einsatzort);
         if (fd.koordinaten)
