@@ -1201,6 +1201,25 @@
         padding: 4px
     }
 
+    .backup-hint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        margin-bottom: 1rem;
+        border-radius: 16px;
+        background: var(--warn-bg);
+        color: var(--warn-t);
+        font-size: 13px;
+        line-height: 1.4
+    }
+
+    .backup-hint > i {
+        font-size: 22px;
+        flex-shrink: 0
+    }
+
     .lock-note {
         background: var(--grbg);
         border: 1.5px solid var(--grl);
@@ -1315,6 +1334,14 @@
                 <label class="fl">Einsatz-Vorlagen</label>
                 <div id="tplList"><div class="empty" style="padding:.75rem 0">Noch keine Vorlagen — fülle das Formular aus und tippe in der Zusammenfassung auf „Vorlage".</div></div>
             </div>
+            <label class="fl">Datensicherung</label>
+            <p style="font-size:12.5px;color:var(--ct2);line-height:1.6;margin-bottom:.625rem">Beurteilungen liegen nur auf diesem Gerät. Sichere sie regelmäßig auf den Firmenrechner – die App erinnert dich ab 10 ungesicherten Beurteilungen oder nach 7 Tagen.</p>
+            <div id="backupStatus" style="font-size:12.5px;color:var(--ct2);margin-bottom:.625rem"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-sm" onclick="exportBackup()"><i class="ti ti-download"></i> Backup exportieren</button>
+                <button class="btn btn-sm" onclick="document.getElementById('backupFile').click()"><i class="ti ti-upload"></i> Backup importieren</button>
+                <input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+            </div>
             <label class="fl">Über</label>
             <div style="font-size:12px;color:var(--ct2);line-height:1.8">
                 <div style="font-weight:600;color:var(--ct)">GBU – Digitale Gefährdungsermittlung</div>
@@ -1370,6 +1397,17 @@
         </div>
         <div class="ta">
             <div class="toast" id="toast"></div>
+        </div>
+
+        <!-- Erinnerung: Beurteilungen sichern -->
+        <div class="backup-hint" id="backupHint" style="display:none">
+            <i class="ti ti-database-export"></i>
+            <div style="flex:1;min-width:0">
+                <strong id="backupHintTitle">Beurteilungen sichern</strong>
+                <div id="backupHintText" style="font-size:12px;opacity:.85"></div>
+            </div>
+            <button class="btn btn-sm" onclick="exportBackup()"><i class="ti ti-download"></i> Sichern</button>
+            <button class="btn btn-sm" onclick="snoozeBackup()" title="7 Tage später erinnern">Später</button>
         </div>
 
         <div id="listView" style="display:none">
@@ -2381,6 +2419,7 @@
         initSig();
         goTo(step);
         await restoreDraft();
+        checkBackupReminder();
         /* Entwurf-Autosicherung: jede Eingabe/Auswahl im Formular sichern */
         const fv = document.getElementById('formView');
         fv.addEventListener('input', scheduleDraft);
@@ -2793,6 +2832,7 @@
         await clearDraft();
         updateCount();
         showDopamin();
+        checkBackupReminder();
     }
     async function handlePhotos(e) {
         const files = Array.from(e.target.files);
@@ -3318,6 +3358,149 @@
         const ort = (fd.einsatzort || '').split(',').slice(0, 2).join(',').trim();
         return 'Baumsicherheitsbeurteilung' + (ort ? ' – ' + ort : '');
     }
+    /* ===== Datensicherung: Export/Import aller Beurteilungen + Erinnerung ===== */
+    const BACKUP_COUNT = 10, BACKUP_DAYS = 7;
+    async function getAllAssessments() {
+        const out = [];
+        try {
+            const r = await window.storage.list('bsa_');
+            for (const k of r.keys) {
+                try {
+                    out.push(JSON.parse((await window.storage.get(k)).value));
+                } catch (e) {}
+            }
+        } catch (e) {}
+        return out;
+    }
+    async function backupMeta() {
+        let lastExport = 0, snoozeUntil = 0;
+        try { lastExport = Number((await window.storage.get('gbu_lastExport')).value) || 0; } catch (e) {}
+        try { snoozeUntil = Number((await window.storage.get('gbu_backupSnooze')).value) || 0; } catch (e) {}
+        const all = await getAllAssessments();
+        const unsaved = all.filter(a => new Date(a.createdAt || 0).getTime() > lastExport);
+        return { lastExport, snoozeUntil, total: all.length, unsaved: unsaved.length };
+    }
+    async function checkBackupReminder() {
+        const el = document.getElementById('backupHint');
+        if (!el)
+            return;
+        const m = await backupMeta();
+        /* Ohne bisherige Sicherung zählt die Frist ab erster Nutzung (7 Tage Schonfrist) */
+        let firstRun = 0;
+        try { firstRun = Number((await window.storage.get('gbu_firstRun')).value) || 0; } catch (e) {}
+        if (!firstRun) {
+            firstRun = Date.now();
+            try { await window.storage.set('gbu_firstRun', String(firstRun)); } catch (e) {}
+        }
+        const days = (Date.now() - (m.lastExport || firstRun)) / 864e5;
+        const due = m.unsaved >= BACKUP_COUNT || (m.unsaved > 0 && days >= BACKUP_DAYS);
+        if (!due || Date.now() < m.snoozeUntil) {
+            el.style.display = 'none';
+            return;
+        }
+        document.getElementById('backupHintTitle').textContent = m.unsaved + ' ungesicherte Beurteilung' + (m.unsaved === 1 ? '' : 'en');
+        document.getElementById('backupHintText').textContent = m.lastExport
+            ? 'Letzte Sicherung vor ' + Math.floor(days) + ' Tagen – jetzt auf den Firmenrechner übertragen.'
+            : 'Noch nie gesichert – bei Verlust des Handys sind sie weg.';
+        el.style.display = 'flex';
+    }
+    async function snoozeBackup() {
+        try { await window.storage.set('gbu_backupSnooze', String(Date.now() + BACKUP_DAYS * 864e5)); } catch (e) {}
+        document.getElementById('backupHint').style.display = 'none';
+        toast('Erinnerung in 7 Tagen', 'ok');
+    }
+    async function updateBackupStatus() {
+        const el = document.getElementById('backupStatus');
+        if (!el)
+            return;
+        const m = await backupMeta();
+        let size = '';
+        try {
+            if (navigator.storage && navigator.storage.estimate) {
+                const e = await navigator.storage.estimate();
+                if (e.usage)
+                    size = ' · Speicher: ' + (e.usage / 1048576).toFixed(1) + ' MB' + (e.quota ? ' von ~' + Math.round(e.quota / 1073741824 * 10) / 10 + ' GB' : '');
+            }
+        } catch (e) {}
+        el.innerHTML = '<strong>' + m.total + '</strong> Beurteilung' + (m.total === 1 ? '' : 'en') + ' gespeichert, <strong>' + m.unsaved + '</strong> ungesichert' +
+            (m.lastExport ? ' · letzte Sicherung ' + new Date(m.lastExport).toLocaleDateString('de-DE') : ' · noch nie gesichert') + size;
+    }
+    async function exportBackup() {
+        try {
+            const assessments = await getAllAssessments();
+            if (!assessments.length) {
+                toast('Keine Beurteilungen vorhanden', 'err');
+                return;
+            }
+            const extra = {};
+            for (const k of ['gbu_roster', 'gbu_templates', 'gbu_company']) {
+                try { extra[k] = (await window.storage.get(k)).value; } catch (e) {}
+            }
+            const payload = JSON.stringify({ app: 'GBU', version: 1, exportedAt: new Date().toISOString(), assessments, extra });
+            const fn = 'gbu-backup_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.json';
+            if (isNativeApp()) {
+                const P = window.Capacitor.Plugins;
+                const res = await P.Filesystem.writeFile({ path: fn, data: payload, directory: 'CACHE', encoding: 'utf8' });
+                await P.Share.share({ title: 'GBU-Backup', url: res.uri, dialogTitle: 'Backup speichern oder senden' });
+            } else {
+                const file = new File([payload], fn, { type: 'application/json' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'GBU-Backup' });
+                } else {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(file);
+                    a.download = fn;
+                    a.click();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+                }
+            }
+            await window.storage.set('gbu_lastExport', String(Date.now()));
+            try { await window.storage.delete('gbu_backupSnooze'); } catch (e) {}
+            toast(assessments.length + ' Beurteilungen gesichert', 'ok');
+            checkBackupReminder();
+            updateBackupStatus();
+        } catch (e) {
+            if (e.name !== 'AbortError' && !/cancel/i.test(e.message || ''))
+                toast('Sicherung fehlgeschlagen: ' + (e.message || ''), 'err');
+        }
+    }
+    async function importBackup(ev) {
+        const f = ev.target.files && ev.target.files[0];
+        ev.target.value = '';
+        if (!f)
+            return;
+        try {
+            const d = JSON.parse(await f.text());
+            if (!d || d.app !== 'GBU' || !Array.isArray(d.assessments))
+                throw new Error('Keine gültige GBU-Backup-Datei');
+            let added = 0;
+            for (const a of d.assessments) {
+                if (!a || !a.id)
+                    continue;
+                let exists = false;
+                try { await window.storage.get('bsa_' + a.id); exists = true; } catch (e) {}
+                if (!exists) {
+                    await window.storage.set('bsa_' + a.id, JSON.stringify(a));
+                    added++;
+                }
+            }
+            for (const k of ['gbu_roster', 'gbu_templates', 'gbu_company']) {
+                if (d.extra && d.extra[k]) {
+                    let has = false;
+                    try { await window.storage.get(k); has = true; } catch (e) {}
+                    if (!has)
+                        await window.storage.set(k, d.extra[k]);
+                }
+            }
+            updateCount();
+            updateBackupStatus();
+            if (document.getElementById('listView').style.display !== 'none')
+                loadList();
+            toast(added + ' Beurteilung' + (added === 1 ? '' : 'en') + ' importiert', 'ok');
+        } catch (e) {
+            toast('Import fehlgeschlagen: ' + (e.message || ''), 'err');
+        }
+    }
     async function nativeSharePDF(doc, fn, text) {
         const P = window.Capacitor.Plugins;
         const base64 = doc.output('datauristring').split(',')[1];
@@ -3638,6 +3821,7 @@
     }
 
     function openSettings() {
+        updateBackupStatus();
         document.getElementById('proLocked').style.display = PRO ? 'none' : 'block';
         document.getElementById('proContent').style.display = PRO ? 'block' : 'none';
         if (PRO) {
