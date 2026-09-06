@@ -1,10 +1,11 @@
-const CACHE = 'gbu-v3.2';
+const CACHE = 'gbu-v3.3';
 const ASSETS = [
   './',
   './index.html',
   '../manifest.json',
   './vendor/tabler-icons.min.css',
   './vendor/jspdf.umd.min.js',
+  './vendor/jszip.min.js',
   './vendor/fonts/tabler-icons.woff2'
 ];
 

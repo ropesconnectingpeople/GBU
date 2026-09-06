@@ -1335,12 +1335,14 @@
                 <div id="tplList"><div class="empty" style="padding:.75rem 0">Noch keine Vorlagen — fülle das Formular aus und tippe in der Zusammenfassung auf „Vorlage".</div></div>
             </div>
             <label class="fl">Datensicherung</label>
-            <p style="font-size:12.5px;color:var(--ct2);line-height:1.6;margin-bottom:.625rem">Beurteilungen liegen nur auf diesem Gerät. Sichere sie regelmäßig auf den Firmenrechner – die App erinnert dich ab 10 ungesicherten Beurteilungen oder nach 7 Tagen.</p>
+            <p style="font-size:12.5px;color:var(--ct2);line-height:1.6;margin-bottom:.625rem">Beurteilungen liegen nur auf diesem Gerät. Der PDF-Export packt jede Beurteilung als eigenes PDF in Monatsordner (für Büro und BG) – plus Übersichtstabelle und Sicherung fürs Wiedereinspielen. Die App erinnert dich ab 10 ungesicherten Beurteilungen oder nach 7 Tagen.</p>
             <div id="backupStatus" style="font-size:12.5px;color:var(--ct2);margin-bottom:.625rem"></div>
+            <select id="exportMonth" style="margin-bottom:8px"><option value="all">Alle Beurteilungen</option></select>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn btn-sm" onclick="exportBackup()"><i class="ti ti-download"></i> Backup exportieren</button>
-                <button class="btn btn-sm" onclick="document.getElementById('backupFile').click()"><i class="ti ti-upload"></i> Backup importieren</button>
-                <input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+                <button class="btn btn-g" id="exportBundleBtn" style="flex:1 1 100%;justify-content:center" onclick="exportBundle()"><i class="ti ti-file-zip"></i> PDF-Export (ZIP)</button>
+                <button class="btn btn-sm" onclick="exportBackup()"><i class="ti ti-download"></i> Nur Sicherungsdatei</button>
+                <button class="btn btn-sm" onclick="document.getElementById('backupFile').click()"><i class="ti ti-upload"></i> Importieren</button>
+                <input type="file" id="backupFile" accept=".json,.zip,application/json,application/zip" style="display:none" onchange="importBackup(event)">
             </div>
             <label class="fl">Über</label>
             <div style="font-size:12px;color:var(--ct2);line-height:1.8">
@@ -1406,7 +1408,7 @@
                 <strong id="backupHintTitle">Beurteilungen sichern</strong>
                 <div id="backupHintText" style="font-size:12px;opacity:.85"></div>
             </div>
-            <button class="btn btn-sm" onclick="exportBackup()"><i class="ti ti-download"></i> Sichern</button>
+            <button class="btn btn-sm" onclick="exportBundle('all')"><i class="ti ti-file-zip"></i> Sichern</button>
             <button class="btn btn-sm" onclick="snoozeBackup()" title="7 Tage später erinnern">Später</button>
         </div>
 
@@ -2171,6 +2173,7 @@
     </div>
 
     <script src="vendor/jspdf.umd.min.js"></script>
+    <script src="vendor/jszip.min.js"></script>
     <script>
     const STEPS = 7;
     let step = 0,
@@ -3425,6 +3428,127 @@
         el.innerHTML = '<strong>' + m.total + '</strong> Beurteilung' + (m.total === 1 ? '' : 'en') + ' gespeichert, <strong>' + m.unsaved + '</strong> ungesichert' +
             (m.lastExport ? ' · letzte Sicherung ' + new Date(m.lastExport).toLocaleDateString('de-DE') : ' · noch nie gesichert') + size;
     }
+    /* Datei teilen (Share-Sheet) oder herunterladen – Web und native App */
+    async function shareBlob(blob, fn, title) {
+        if (isNativeApp()) {
+            const P = window.Capacitor.Plugins;
+            const b64 = await new Promise((res, rej) => {
+                const r = new FileReader();
+                r.onload = () => res(String(r.result).split(',')[1]);
+                r.onerror = rej;
+                r.readAsDataURL(blob);
+            });
+            const res = await P.Filesystem.writeFile({ path: fn, data: b64, directory: 'CACHE' });
+            await P.Share.share({ title, url: res.uri, dialogTitle: 'Speichern oder senden' });
+            return;
+        }
+        const file = new File([blob], fn, { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title });
+        } else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(file);
+            a.download = fn;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        }
+    }
+    async function buildBackupJSON(assessments) {
+        const extra = {};
+        for (const k of ['gbu_roster', 'gbu_templates', 'gbu_company']) {
+            try { extra[k] = (await window.storage.get(k)).value; } catch (e) {}
+        }
+        return JSON.stringify({ app: 'GBU', version: 1, exportedAt: new Date().toISOString(), assessments, extra });
+    }
+    function safeName(s, max) {
+        return (s || '').toLowerCase()
+            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, max || 40) || 'einsatz';
+    }
+    function sicherheitText(v) {
+        return v === 'ja' ? 'Sicher' : v === 'nein' ? 'Nicht sicher' : v === 'untersuchung' ? 'Untersuchung' : '';
+    }
+    async function markExported(n) {
+        await window.storage.set('gbu_lastExport', String(Date.now()));
+        try { await window.storage.delete('gbu_backupSnooze'); } catch (e) {}
+        toast(n + ' Beurteilung' + (n === 1 ? '' : 'en') + ' gesichert', 'ok');
+        checkBackupReminder();
+        updateBackupStatus();
+    }
+    /* Monatsauswahl in den Einstellungen füllen */
+    async function fillExportMonths() {
+        const sel = document.getElementById('exportMonth');
+        if (!sel)
+            return;
+        const all = await getAllAssessments();
+        const months = [...new Set(all.map(a => (a.datum || a.createdAt || '').slice(0, 7)).filter(Boolean))].sort().reverse();
+        const names = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        sel.innerHTML = '<option value="all">Alle Beurteilungen (' + all.length + ')</option>' + months.map(m => {
+            const n = all.filter(a => (a.datum || a.createdAt || '').slice(0, 7) === m).length;
+            return `<option value="${m}">${names[Number(m.slice(5, 7)) - 1] || ''} ${m.slice(0, 4)} (${n})</option>`;
+        }).join('');
+    }
+    /* Hauptexport: ZIP mit Monatsordnern, je GBU ein PDF, Übersicht als CSV, Backup fürs Wiedereinspielen */
+    async function exportBundle(scope) {
+        const btn = document.getElementById('exportBundleBtn');
+        try {
+            if (!window.jspdf || !window.JSZip) {
+                toast('Bibliotheken laden noch – bitte gleich nochmal', 'err');
+                return;
+            }
+            scope = scope || document.getElementById('exportMonth')?.value || 'all';
+            let list = await getAllAssessments();
+            if (scope !== 'all')
+                list = list.filter(a => (a.datum || a.createdAt || '').slice(0, 7) === scope);
+            if (!list.length) {
+                toast('Keine Beurteilungen im gewählten Zeitraum', 'err');
+                return;
+            }
+            list.sort((a, b) => (a.datum || '').localeCompare(b.datum || '') || (a.createdAt || '').localeCompare(b.createdAt || ''));
+            const zip = new JSZip();
+            const root = zip.folder('GBU-Export');
+            const csv = ['Datum;Einsatzort;Verantwortlicher;Einsatztyp;Sicherheitsbeurteilung;Datei'];
+            for (let i = 0; i < list.length; i++) {
+                const a = list[i];
+                if (btn)
+                    btn.innerHTML = `<i class="ti ti-loader"></i> PDF ${i + 1}/${list.length}…`;
+                const fd = a.formData || {};
+                const datum = (fd.datum || a.datum || (a.createdAt || '').slice(0, 10) || 'ohne-datum');
+                const month = datum.slice(0, 7) || 'ohne-datum';
+                const fn = datum + '_' + safeName(fd.einsatzort || a.einsatzort, 40) + '.pdf';
+                const doc = await buildPDF(fd, a.photos || []);
+                root.folder(month).file(fn, doc.output('blob'));
+                csv.push([
+                    datum, (fd.einsatzort || a.einsatzort || ''), (fd.verantwortlicher || fd.aufseher || ''),
+                    (fd.einsatzTyp || ''), sicherheitText(fd.sicherheit || a.sicherheit), month + '/' + fn
+                ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';'));
+                await new Promise(r => setTimeout(r, 0));
+            }
+            root.file('Uebersicht.csv', '﻿' + csv.join('\r\n'));
+            root.file('gbu-backup.json', await buildBackupJSON(list));
+            root.file('LIESMICH.txt',
+                'GBU-Export vom ' + new Date().toLocaleDateString('de-DE') + '\r\n\r\n' +
+                'Ordner = Monat (JJJJ-MM), darin je Beurteilung ein PDF (Dateiname beginnt mit dem Datum).\r\n' +
+                'Uebersicht.csv = Tabelle aller enthaltenen Beurteilungen (mit Excel zu oeffnen).\r\n' +
+                'gbu-backup.json = Sicherung zum Wiedereinspielen in die App (Einstellungen > Backup importieren).\r\n');
+            if (btn)
+                btn.innerHTML = '<i class="ti ti-loader"></i> Packe…';
+            const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+            const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            await shareBlob(blob, 'GBU-Export_' + (scope === 'all' ? 'alle' : scope) + '_' + stamp + '.zip', 'GBU-Export');
+            if (scope === 'all')
+                await markExported(list.length);
+            else
+                toast(list.length + ' PDFs exportiert', 'ok');
+        } catch (e) {
+            if (e.name !== 'AbortError' && !/cancel/i.test(e.message || ''))
+                toast('Export fehlgeschlagen: ' + (e.message || ''), 'err');
+        } finally {
+            if (btn)
+                btn.innerHTML = '<i class="ti ti-file-zip"></i> PDF-Export (ZIP)';
+        }
+    }
+    /* Nur die Sicherungsdatei (klein, fürs Wiedereinspielen) */
     async function exportBackup() {
         try {
             const assessments = await getAllAssessments();
@@ -3432,33 +3556,10 @@
                 toast('Keine Beurteilungen vorhanden', 'err');
                 return;
             }
-            const extra = {};
-            for (const k of ['gbu_roster', 'gbu_templates', 'gbu_company']) {
-                try { extra[k] = (await window.storage.get(k)).value; } catch (e) {}
-            }
-            const payload = JSON.stringify({ app: 'GBU', version: 1, exportedAt: new Date().toISOString(), assessments, extra });
+            const payload = await buildBackupJSON(assessments);
             const fn = 'gbu-backup_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.json';
-            if (isNativeApp()) {
-                const P = window.Capacitor.Plugins;
-                const res = await P.Filesystem.writeFile({ path: fn, data: payload, directory: 'CACHE', encoding: 'utf8' });
-                await P.Share.share({ title: 'GBU-Backup', url: res.uri, dialogTitle: 'Backup speichern oder senden' });
-            } else {
-                const file = new File([payload], fn, { type: 'application/json' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'GBU-Backup' });
-                } else {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(file);
-                    a.download = fn;
-                    a.click();
-                    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-                }
-            }
-            await window.storage.set('gbu_lastExport', String(Date.now()));
-            try { await window.storage.delete('gbu_backupSnooze'); } catch (e) {}
-            toast(assessments.length + ' Beurteilungen gesichert', 'ok');
-            checkBackupReminder();
-            updateBackupStatus();
+            await shareBlob(new Blob([payload], { type: 'application/json' }), fn, 'GBU-Backup');
+            await markExported(assessments.length);
         } catch (e) {
             if (e.name !== 'AbortError' && !/cancel/i.test(e.message || ''))
                 toast('Sicherung fehlgeschlagen: ' + (e.message || ''), 'err');
@@ -3470,7 +3571,17 @@
         if (!f)
             return;
         try {
-            const d = JSON.parse(await f.text());
+            let text;
+            if (/\.zip$/i.test(f.name)) {
+                const z = await JSZip.loadAsync(f);
+                const entry = Object.keys(z.files).find(k => /gbu-backup\.json$/i.test(k));
+                if (!entry)
+                    throw new Error('Im ZIP ist keine gbu-backup.json enthalten');
+                text = await z.file(entry).async('string');
+            } else {
+                text = await f.text();
+            }
+            const d = JSON.parse(text);
             if (!d || d.app !== 'GBU' || !Array.isArray(d.assessments))
                 throw new Error('Keine gültige GBU-Backup-Datei');
             let added = 0;
@@ -3822,6 +3933,7 @@
 
     function openSettings() {
         updateBackupStatus();
+        fillExportMonths();
         document.getElementById('proLocked').style.display = PRO ? 'none' : 'block';
         document.getElementById('proContent').style.display = PRO ? 'block' : 'none';
         if (PRO) {
