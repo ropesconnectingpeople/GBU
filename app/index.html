@@ -89,11 +89,21 @@
         top: 0;
         z-index: 100;
         margin: 0 -1rem 1rem;
-        padding: calc(env(safe-area-inset-top) + .75rem) 1rem .75rem;
-        background: color-mix(in srgb, var(--cb) 82%, transparent);
-        -webkit-backdrop-filter: saturate(180%) blur(16px);
-        backdrop-filter: saturate(180%) blur(16px);
-        border-bottom: 1px solid var(--cbr)
+        padding: calc(env(safe-area-inset-top) + .6rem) 1rem .6rem;
+        background: var(--grad);
+        box-shadow: 0 4px 18px rgba(15, 110, 86, .25)
+    }
+
+    .app-header .btn {
+        background: rgba(255, 255, 255, .16);
+        border-color: transparent;
+        color: #fff;
+        border-radius: 999px
+    }
+
+    .app-header .cnt {
+        background: #fff;
+        color: var(--grd)
     }
 
     .ah-brand {
@@ -107,22 +117,21 @@
         width: 38px;
         height: 38px;
         border-radius: 11px;
-        background: var(--grad);
+        background: rgba(255, 255, 255, .18);
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 20px;
-        flex-shrink: 0;
-        box-shadow: 0 3px 10px rgba(29, 158, 117, .35)
+        flex-shrink: 0
     }
 
     .ah-title {
         font-size: 15px;
         font-weight: 700;
         letter-spacing: -.01em;
-        color: var(--ct);
-        line-height: 1.25;
+        color: #fff;
+        line-height: 1.2;
         overflow: hidden;
         hyphens: auto;
         display: -webkit-box;
@@ -163,26 +172,79 @@
     }
 
     /* ---------- Progress ---------- */
+    /* Nummerierte Schritte, antippbar – erledigte zeigen einen Haken */
     .pbar {
         display: flex;
-        gap: 5px;
-        margin-bottom: 1rem
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        counter-reset: step;
+        margin: 2px 6px 8px
+    }
+
+    .pbar::before {
+        content: "";
+        position: absolute;
+        left: 13px;
+        right: 13px;
+        top: 50%;
+        height: 2px;
+        background: var(--cbr2);
+        z-index: 0
     }
 
     .pbar .s {
-        flex: 1;
-        height: 5px;
-        border-radius: 3px;
-        background: var(--cbr);
-        transition: background .3s
+        flex: 0 0 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--cb);
+        border: 2px solid var(--cbr2);
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ct2);
+        cursor: pointer;
+        transition: all .2s;
+        -webkit-tap-highlight-color: transparent
+    }
+
+    .pbar .s::after {
+        counter-increment: step;
+        content: counter(step)
     }
 
     .pbar .s.done {
-        background: var(--gr)
+        background: var(--gr);
+        border-color: var(--gr);
+        color: #fff
+    }
+
+    .pbar .s.done::after {
+        content: "✓"
     }
 
     .pbar .s.active {
-        background: var(--grad)
+        background: var(--grad);
+        border-color: var(--grd);
+        color: #fff;
+        transform: scale(1.15);
+        box-shadow: 0 2px 8px rgba(29, 158, 117, .4)
+    }
+
+    .step-title {
+        text-align: center;
+        font-size: 12px;
+        color: var(--ct2);
+        margin-bottom: 14px
+    }
+
+    .step-title b {
+        color: var(--ct);
+        font-weight: 700
     }
 
     /* ---------- Sections as cards ---------- */
@@ -192,11 +254,7 @@
 
     .sec.active {
         display: block;
-        background: var(--cb);
-        border: 1px solid var(--cbr);
-        border-radius: var(--rl);
-        padding: 1.25rem 1rem 1.375rem;
-        box-shadow: var(--shadow);
+        padding: 0 2px;
         animation: secIn .28s ease
     }
 
@@ -217,7 +275,7 @@
     }
 
     .sh h2 {
-        font-size: 19px;
+        font-size: 22px;
         font-weight: 700;
         letter-spacing: -.01em;
         color: var(--ct);
@@ -230,7 +288,7 @@
     .sh h2 i {
         width: 34px;
         height: 34px;
-        border-radius: 10px;
+        border-radius: 50%;
         background: var(--grbg);
         color: var(--gr);
         display: inline-flex;
@@ -249,13 +307,20 @@
     /* ---------- Form elements ---------- */
     .fl {
         font-size: 11px;
-        font-weight: 600;
-        color: var(--ct2);
+        font-weight: 700;
+        color: var(--grd);
         text-transform: uppercase;
         letter-spacing: .07em;
         margin-bottom: 6px;
         display: block;
-        margin-top: 1.125rem
+        margin-top: 1.25rem
+    }
+
+    /* Grüne Feldbezeichnungen im Dunkelmodus heller, sonst zu wenig Kontrast */
+    @media (prefers-color-scheme: dark) {
+        .fl {
+            color: var(--ok-t)
+        }
     }
 
     .fl:first-child {
@@ -266,9 +331,9 @@
         width: 100%;
         padding: 12px 14px;
         font-size: 16px;
-        border: 1.5px solid transparent;
-        border-radius: 12px;
-        background: var(--cb2);
+        border: 1px solid var(--cbr);
+        border-radius: 14px;
+        background: var(--cb);
         color: var(--ct);
         font-family: var(--font);
         transition: border-color .15s, background .15s;
@@ -312,27 +377,23 @@
     }
 
     /* ---------- Check pills ---------- */
+    /* Auswahl als Chips: alles auf einen Blick, weniger Scrollen */
     .cg {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        flex-wrap: wrap;
         gap: 8px;
-        margin-top: 6px
-    }
-
-    @media (max-width: 400px) {
-        .cg {
-            grid-template-columns: 1fr
-        }
+        margin-top: 8px
     }
 
     .ci {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 9px;
-        padding: 11px 12px;
-        border: 1.5px solid transparent;
-        border-radius: 12px;
-        background: var(--cb2);
+        gap: 6px;
+        padding: 9px 14px;
+        min-height: 40px;
+        border: 1.5px solid var(--cbr2);
+        border-radius: 999px;
+        background: var(--cb);
         cursor: pointer;
         transition: all .15s;
         user-select: none;
@@ -340,44 +401,20 @@
     }
 
     .ci:active {
-        transform: scale(.98)
-    }
-
-    .ci:hover {
-        border-color: var(--grl)
+        transform: scale(.97)
     }
 
     .ci.on {
         border-color: var(--gr);
-        background: var(--grbg)
+        background: var(--gr)
     }
 
     .cbox {
-        width: 20px;
-        height: 20px;
-        border: 1.5px solid var(--cbr2);
-        border-radius: 7px;
-        background: var(--cb);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all .15s
-    }
-
-    .ci.on .cbox {
-        background: var(--gr);
-        border-color: var(--gr)
-    }
-
-    .cicon {
-        color: white;
-        font-size: 12px;
         display: none
     }
 
-    .ci.on .cicon {
-        display: block
+    .cicon {
+        display: none
     }
 
     .clbl {
@@ -387,8 +424,14 @@
     }
 
     .ci.on .clbl {
-        font-weight: 600;
-        color: var(--ok-t)
+        color: #fff;
+        font-weight: 600
+    }
+
+    .ci.on .clbl::before {
+        content: "✓";
+        margin-right: 6px;
+        font-weight: 700
     }
 
     /* ---------- Chip radios ---------- */
@@ -404,9 +447,10 @@
         align-items: center;
         gap: 6px;
         padding: 9px 16px;
-        border: 1.5px solid transparent;
+        min-height: 40px;
+        border: 1.5px solid var(--cbr2);
         border-radius: 999px;
-        background: var(--cb2);
+        background: var(--cb);
         cursor: pointer;
         transition: all .15s;
         user-select: none;
@@ -415,14 +459,10 @@
         -webkit-tap-highlight-color: transparent
     }
 
-    .ri:hover {
-        border-color: var(--grl)
-    }
-
     .ri.sel {
         border-color: var(--gr);
-        background: var(--grbg);
-        color: var(--ok-t);
+        background: var(--gr);
+        color: #fff;
         font-weight: 600
     }
 
@@ -493,9 +533,10 @@
     /* ---------- Safety options ---------- */
     .sso {
         padding: 10px 16px;
-        border: 1.5px solid transparent;
+        min-height: 40px;
+        border: 1.5px solid var(--cbr2);
         border-radius: 999px;
-        background: var(--cb2);
+        background: var(--cb);
         cursor: pointer;
         font-size: 14px;
         transition: all .15s;
@@ -546,24 +587,28 @@
     }
 
     #stepLbl {
-        flex-shrink: 0
+        display: none
     }
 
+    /* Ein großer Daumen-Button: Weiter über die volle Breite */
     #btnNext {
         flex: 1;
-        max-width: 200px;
         justify-content: center;
-        padding: 13px 18px;
-        font-size: 15px
+        padding: 14px 18px;
+        font-size: 16px
     }
 
     #btnBack {
-        padding: 13px 16px
+        padding: 14px 12px;
+        background: transparent;
+        border-color: transparent;
+        color: var(--ct2);
+        flex-shrink: 0
     }
 
     .btn {
         padding: 10px 16px;
-        border-radius: 12px;
+        border-radius: 999px;
         font-size: 14px;
         font-weight: 600;
         font-family: var(--font);
@@ -635,6 +680,11 @@
         justify-content: center;
         padding: 13px 12px;
         font-size: 15px
+    }
+
+    /* Speichern als Hauptaktion über die volle Breite, Rest darunter */
+    .actrow .btn-g {
+        flex-basis: 100%
     }
 
     /* ---------- Summary ---------- */
@@ -982,8 +1032,8 @@
 
     .ba-hint {
         margin-top: 8px;
-        padding: 9px 12px;
-        border-radius: 10px;
+        padding: 9px 14px;
+        border-radius: 14px;
         background: var(--warn-bg);
         color: var(--warn-t);
         font-size: 12.5px;
@@ -1265,6 +1315,12 @@
                 <label class="fl">Einsatz-Vorlagen</label>
                 <div id="tplList"><div class="empty" style="padding:.75rem 0">Noch keine Vorlagen — fülle das Formular aus und tippe in der Zusammenfassung auf „Vorlage".</div></div>
             </div>
+            <label class="fl">Über</label>
+            <div style="font-size:12px;color:var(--ct2);line-height:1.8">
+                <div style="font-weight:600;color:var(--ct)">GBU – Digitale Gefährdungsermittlung</div>
+                Josua Hundertmark · <a href="mailto:hey@ropesconnectingpeople.com" style="color:var(--ct2)">hey@ropesconnectingpeople.com</a><br>
+                <a href="https://instagram.com/ropesconnectingpeople" target="_blank" style="color:var(--ct2)">@ropesconnectingpeople</a> · <a href="https://www.ropesconnectingpeople.com" target="_blank" style="color:var(--ct2)">ropesconnectingpeople.com</a>
+            </div>
         </div>
     </div>
 
@@ -1325,7 +1381,7 @@
                 </div>
             </div>
             <div style="margin-top:.875rem">
-                <button class="btn btn-g" onclick="newAssessment()">
+                <button class="btn btn-g" style="width:100%;justify-content:center;padding:14px 18px;font-size:16px" onclick="newAssessment()">
                     <i class="ti ti-plus"></i>
                      Neue Beurteilung
                 </button>
@@ -1334,14 +1390,15 @@
 
         <div id="formView">
             <div class="pbar" id="pb">
-                <div class="s active" id="p0"></div>
-                <div class="s" id="p1"></div>
-                <div class="s" id="p2"></div>
-                <div class="s" id="p3"></div>
-                <div class="s" id="p4"></div>
-                <div class="s" id="p5"></div>
-                <div class="s" id="p6"></div>
+                <div class="s active" id="p0" onclick="jumpTo(0)" title="Einsatz"></div>
+                <div class="s" id="p1" onclick="jumpTo(1)" title="Personal"></div>
+                <div class="s" id="p2" onclick="jumpTo(2)" title="Arbeiten & Ausrüstung"></div>
+                <div class="s" id="p3" onclick="jumpTo(3)" title="Baumbezogene Gefahren"></div>
+                <div class="s" id="p4" onclick="jumpTo(4)" title="Gefahren am Einsatzort"></div>
+                <div class="s" id="p5" onclick="jumpTo(5)" title="Notfall & Rettung"></div>
+                <div class="s" id="p6" onclick="jumpTo(6)" title="Zusammenfassung"></div>
             </div>
+            <div class="step-title" id="stepTitle"></div>
 
             <!-- Schritt 0: Einsatz -->
             <div class="sec active" id="s0">
@@ -2073,12 +2130,6 @@
             </div>
         </div>
 
-        <div style="margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--cbr);font-size:11px;color:var(--ct2);line-height:1.8">
-            <div style="font-weight:600;color:var(--ct);margin-bottom:4px">Josua Hundertmark</div>
-            <a href="mailto:hey@ropesconnectingpeople.com" style="color:var(--ct2);text-decoration:none">hey@ropesconnectingpeople.com</a>
-            <br>
-            <a href="https://instagram.com/ropesconnectingpeople" target="_blank" style="color:var(--ct2);text-decoration:none">@ropesconnectingpeople</a>
-        </div>
     </div>
 
     <script src="vendor/jspdf.umd.min.js"></script>
@@ -2328,6 +2379,7 @@
         setupRadios();
         await updateCount();
         initSig();
+        goTo(step);
         await restoreDraft();
         /* Entwurf-Autosicherung: jede Eingabe/Auswahl im Formular sichern */
         const fv = document.getElementById('formView');
@@ -2807,9 +2859,21 @@
             buildSummary();
         goTo(n);
     }
+    /* Direkt zu einem Schritt springen (Antippen der Nummer in der Leiste) */
+    function jumpTo(n) {
+        if (n === STEPS - 1)
+            buildSummary();
+        goTo(n);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     function goTo(n) {
         document.getElementById('s' + step)?.classList.remove('active');
         step = n;
+        const st = document.getElementById('stepTitle');
+        if (st) {
+            const name = document.querySelector('#s' + n + ' .sh h2')?.textContent.trim() || '';
+            st.innerHTML = 'Schritt <b>' + (n + 1) + ' von ' + STEPS + '</b>' + (name ? ' · ' + name : '');
+        }
         for (let i = 0; i < STEPS; i++) {
             const pb = document.getElementById('p' + i);
             if (!pb)
