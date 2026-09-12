@@ -1532,6 +1532,8 @@
                         <div class="koord" id="koordZeile" style="display:none" onclick="copyKoord()" title="Antippen zum Kopieren">
                             <i class="ti ti-map-pin"></i> <span id="koordText"></span>
                         </div>
+                        <label class="fl" style="margin-top:.75rem">Zufahrt über <span id="zufahrtHint" style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ct2)">(bei Park, Wald, Friedhof – für Rettung und Crew)</span></label>
+                        <input type="text" id="zufahrt" placeholder="z.B. Parkplatz Nordeingang, Tor Rheinstraße" autocomplete="off">
                     </div>
                     <div>
                         <label class="fl">Datum</label>
@@ -2737,7 +2739,7 @@
         el.classList.add('sel');
     }
     function resetForm() {
-        ['einsatzort', 'aufseher', 'vonZeit', 'bisZeit', 'baumart', 'baumhoehe', 'stamm', 'arbeitenSonstiges', 'umfeldSonstiges', 'bemerkung', 'einsatzSonstiges', 'besonderheiten', 'verantwortlicher'].forEach(id => {
+        ['einsatzort', 'zufahrt', 'aufseher', 'vonZeit', 'bisZeit', 'baumart', 'baumhoehe', 'stamm', 'arbeitenSonstiges', 'umfeldSonstiges', 'bemerkung', 'einsatzSonstiges', 'besonderheiten', 'verantwortlicher'].forEach(id => {
             const e = document.getElementById(id);
             if (e)
                 e.value = '';
@@ -2788,6 +2790,7 @@
         return {
             einsatzort: document.getElementById('einsatzort')?.value || '',
             koordinaten: gpsKoord,
+            zufahrt: document.getElementById('zufahrt')?.value || '',
             datum: document.getElementById('datum')?.value || '',
             aufseher: document.getElementById('aufseher')?.value || '',
             einsatzTyp,
@@ -2820,6 +2823,7 @@
         };
         set('einsatzort', d.einsatzort);
         setKoord(d.koordinaten);
+        set('zufahrt', d.zufahrt);
         set('datum', d.datum || new Date().toISOString().split('T')[0]);
         set('aufseher', d.aufseher);
         set('vonZeit', d.vonZeit);
@@ -2996,6 +3000,7 @@
         const m = [];
         if (n === 0) {
             if (!v('einsatzort')) m.push('Einsatzort');
+            else if (!/\d/.test(v('einsatzort')) && !v('zufahrt')) m.push('Zufahrt über (Adresse ohne Hausnummer)');
             if (!v('datum')) m.push('Datum');
             if (!v('aufseher')) m.push('Aufsichtsführender');
             if (!on('[data-etyp]') && !v('einsatzTypSonstiges')) m.push('Einsatztyp');
@@ -3102,6 +3107,7 @@
   <div class="st">Einsatz</div><div class="sc">
   <div class="sr"><span class="sk">Einsatzort</span><span class="sv">${
         fd.einsatzort || '–'}</span></div>
+  ${fd.zufahrt ? `<div class="sr"><span class="sk">Zufahrt über</span><span class="sv">${fd.zufahrt}</span></div>` : ''}
   <div class="sr"><span class="sk">Datum</span><span class="sv">${fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '–'}</span></div>
   <div class="sr"><span class="sk">Aufsicht</span><span class="sv">${fd.aufseher || '–'}</span></div>
   <div class="sr"><span class="sk">Einsatztyp</span><span class="sv">${fd.einsatzTyp || '–'}</span></div>
@@ -3218,7 +3224,8 @@
             y += 5 + ortLines.length * 8;
             const sub = [
                 fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '',
-                fd.koordinaten || ''
+                fd.koordinaten || '',
+                fd.zufahrt ? 'Zufahrt über ' + fd.zufahrt : ''
             ].filter(Boolean).join('  ·  ');
             if (sub) {
                 doc.setFont('helvetica', 'normal');
@@ -3234,6 +3241,8 @@
         line('Einsatzort', fd.einsatzort);
         if (fd.koordinaten)
             line('Koordinaten', fd.koordinaten);
+        if (fd.zufahrt)
+            line('Zufahrt über', fd.zufahrt);
         line('Datum', fd.datum ? new Date(fd.datum).toLocaleDateString('de-DE') : '');
         line('Aufsichtsführender', fd.aufseher);
         line('Dauer', (fd.vonZeit || '–') + ' bis ' + (fd.bisZeit || '–'));
