@@ -227,12 +227,58 @@
         content: "✓"
     }
 
+    /* Besucht, aber Pflichtangaben fehlen */
+    .pbar .s.warn {
+        background: #fff;
+        border-color: #E24B4A;
+        color: #E24B4A
+    }
+
+    .pbar .s.warn::after {
+        content: "!"
+    }
+
     .pbar .s.active {
         background: var(--grad);
         border-color: var(--grd);
         color: #fff;
         transform: scale(1.15);
         box-shadow: 0 2px 8px rgba(29, 158, 117, .4)
+    }
+
+    .pbar .s.active.warn {
+        background: #E24B4A;
+        border-color: #B03231;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(226, 75, 74, .4)
+    }
+
+    .step-title .miss {
+        color: #B03231;
+        font-weight: 700
+    }
+
+    .miss-list {
+        margin: .5rem 0 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    .miss-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: var(--err-bg);
+        color: var(--err-t);
+        font-size: 13px;
+        cursor: pointer
+    }
+
+    .miss-item b {
+        white-space: nowrap
     }
 
     .step-title {
@@ -1353,6 +1399,22 @@
         </div>
     </div>
 
+    <!-- Hinweis: Beurteilung unvollständig -->
+    <div class="modal-bg" id="incompleteModal" onclick="if(event.target===this)closeIncomplete(false)">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="ti ti-alert-triangle" style="color:#E24B4A"></i> Noch nicht vollständig</h3>
+                <button class="modal-x" onclick="closeIncomplete(false)"><i class="ti ti-x"></i></button>
+            </div>
+            <p style="font-size:13px;color:var(--ct2);line-height:1.6">Folgende Angaben fehlen noch. Antippen springt direkt zur Stelle.</p>
+            <div class="miss-list" id="missList"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-g" style="flex:1 1 100%;justify-content:center;padding:13px" onclick="closeIncomplete(false, true)"><i class="ti ti-pencil"></i> Ausfüllen</button>
+                <button class="btn" style="flex:1;justify-content:center" id="incompleteProceed" onclick="closeIncomplete(true)">Trotzdem fortfahren</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Vorlage speichern (Pro) -->
     <div class="modal-bg" id="tplModal" onclick="if(event.target===this)closeTplSave()">
         <div class="modal">
@@ -1434,8 +1496,8 @@
                 <div class="s" id="p1" onclick="jumpTo(1)" title="Personal"></div>
                 <div class="s" id="p2" onclick="jumpTo(2)" title="Arbeiten & Ausrüstung"></div>
                 <div class="s" id="p3" onclick="jumpTo(3)" title="Baumbezogene Gefahren"></div>
-                <div class="s" id="p4" onclick="jumpTo(4)" title="Gefahren am Einsatzort"></div>
-                <div class="s" id="p5" onclick="jumpTo(5)" title="Notfall & Rettung"></div>
+                <div class="s" id="p4" onclick="jumpTo(4)" title="Gefahren am Einsatzort & Rettung"></div>
+                <div class="s" id="p5" onclick="jumpTo(5)" title="Fotos"></div>
                 <div class="s" id="p6" onclick="jumpTo(6)" title="Zusammenfassung"></div>
             </div>
             <div class="step-title" id="stepTitle"></div>
@@ -2427,6 +2489,8 @@
         const fv = document.getElementById('formView');
         fv.addEventListener('input', scheduleDraft);
         fv.addEventListener('click', scheduleDraft);
+        fv.addEventListener('input', refreshProgress);
+        fv.addEventListener('click', () => setTimeout(refreshProgress, 0));
     }
     /* ===== Entwurf-Autosicherung (rettet nicht gespeicherte Beurteilungen) ===== */
     let draftT = null,
@@ -2681,6 +2745,7 @@
         baHintUpdate();
         setKoord('');
         clearDraft();
+        visitedSteps.clear();
         goTo(0);
     }
     function collectChecks() {
@@ -2802,8 +2867,13 @@
             });
         }
         baHintUpdate();
+        /* geladene Beurteilung: alle Schritte gelten als besucht → Leiste zeigt Lücken sofort */
+        for (let i = 0; i < STEPS; i++) visitedSteps.add(i);
+        refreshProgress();
     }
-    async function saveAssessment() {
+    async function saveAssessment(force) {
+        if (!force && !(await ensureComplete('speichern')))
+            return;
         const fd = collectFD();
         const uuid = editId || crypto.randomUUID();
         editId = uuid;
@@ -2902,6 +2972,84 @@
             buildSummary();
         goTo(n);
     }
+    /* ===== Vollständigkeit: Pflichtangaben je Schritt ===== */
+    const visitedSteps = new Set([0]);
+    function stepMissing(n) {
+        const v = id => (document.getElementById(id)?.value || '').trim();
+        const on = sel => document.querySelectorAll(sel + '.on').length;
+        const m = [];
+        if (n === 0) {
+            if (!v('einsatzort')) m.push('Einsatzort');
+            if (!v('datum')) m.push('Datum');
+            if (!v('aufseher')) m.push('Aufsichtsführender');
+            if (!on('[data-etyp]') && !v('einsatzTypSonstiges')) m.push('Einsatztyp');
+        } else if (n === 1) {
+            if (![...document.querySelectorAll('#personRows .pname')].some(i => i.value.trim())) m.push('mindestens eine Person');
+        } else if (n === 2) {
+            if (!on('#s2 .ci') && !v('arbeitenSonstiges')) m.push('mindestens eine Tätigkeit oder Ausrüstung');
+        } else if (n === 3) {
+            if (!v('baumart')) m.push('Baumart');
+            if (!document.querySelector('input[name="aus"]:checked')) m.push('Ausrichtung');
+            if (!document.querySelector('.sso.sel')) m.push('Sicherheitsbeurteilung');
+        } else if (n === 4) {
+            if (!on('#s4 .ci')) m.push('mindestens ein Punkt geprüft');
+        } else if (n === 6) {
+            if (!v('verantwortlicher')) m.push('Verantwortlicher');
+            if (!getSigDataUrl()) m.push('Unterschrift');
+        }
+        return m; /* Schritt 5 (Fotos) ist freiwillig */
+    }
+    function stepName(n) {
+        return document.querySelector('#s' + n + ' .sh h2')?.textContent.trim() || ('Schritt ' + (n + 1));
+    }
+    function allMissing() {
+        const out = [];
+        for (let i = 0; i < STEPS; i++) {
+            const m = stepMissing(i);
+            if (m.length) out.push({ step: i, name: stepName(i), items: m });
+        }
+        return out;
+    }
+    /* Leiste einfärben: Haken nur, wenn der besuchte Schritt vollständig ist */
+    function refreshProgress() {
+        for (let i = 0; i < STEPS; i++) {
+            const pb = document.getElementById('p' + i);
+            if (!pb) continue;
+            pb.classList.remove('done', 'warn');
+            if (i !== step && !visitedSteps.has(i) && i > step) continue;
+            const miss = stepMissing(i);
+            if (i === step) {
+                if (miss.length) pb.classList.add('warn');
+            } else if (miss.length) pb.classList.add('warn');
+            else pb.classList.add('done');
+        }
+        const st = document.getElementById('stepTitle');
+        if (st) {
+            const miss = stepMissing(step);
+            st.innerHTML = 'Schritt <b>' + (step + 1) + ' von ' + STEPS + '</b> · ' + stepName(step) +
+                (miss.length ? ' · <span class="miss">fehlt: ' + miss.join(', ') + '</span>' : '');
+        }
+    }
+    let incompleteResolve = null;
+    function ensureComplete(actionLabel) {
+        const miss = allMissing();
+        if (!miss.length) return Promise.resolve(true);
+        const list = document.getElementById('missList');
+        list.innerHTML = miss.map(m => `<div class="miss-item" onclick="closeIncomplete(false);jumpTo(${m.step})"><b>${m.step + 1} · ${m.name}:</b><span>${m.items.join(', ')}</span></div>`).join('');
+        document.getElementById('incompleteProceed').textContent = 'Trotzdem ' + actionLabel;
+        document.getElementById('incompleteModal').classList.add('show');
+        return new Promise(res => { incompleteResolve = res; });
+    }
+    function closeIncomplete(proceed, jumpFirst) {
+        document.getElementById('incompleteModal').classList.remove('show');
+        if (jumpFirst) {
+            const first = allMissing()[0];
+            if (first) jumpTo(first.step);
+        }
+        const r = incompleteResolve;
+        incompleteResolve = null;
+        if (r) r(!!proceed);
+    }
     /* Direkt zu einem Schritt springen (Antippen der Nummer in der Leiste) */
     function jumpTo(n) {
         if (n === STEPS - 1)
@@ -2911,22 +3059,14 @@
     }
     function goTo(n) {
         document.getElementById('s' + step)?.classList.remove('active');
+        /* alle Schritte bis hierhin gelten als besucht */
+        for (let i = 0; i <= n; i++) visitedSteps.add(i);
         step = n;
-        const st = document.getElementById('stepTitle');
-        if (st) {
-            const name = document.querySelector('#s' + n + ' .sh h2')?.textContent.trim() || '';
-            st.innerHTML = 'Schritt <b>' + (n + 1) + ' von ' + STEPS + '</b>' + (name ? ' · ' + name : '');
-        }
         for (let i = 0; i < STEPS; i++) {
             const pb = document.getElementById('p' + i);
-            if (!pb)
-                continue;
-            pb.className = 's';
-            if (i < step)
-                pb.classList.add('done');
-            else if (i === step)
-                pb.classList.add('active');
+            if (pb) pb.classList.toggle('active', i === step);
         }
+        refreshProgress();
         document.getElementById('s' + step)?.classList.add('active');
         document.getElementById('btnBack').disabled = step === 0;
         document.getElementById('stepLbl').textContent = `Schritt ${step + 1} von ${STEPS}`;
@@ -3627,7 +3767,9 @@
             dialogTitle: 'PDF speichern oder teilen'
         });
     }
-    async function exportPDF() {
+    async function exportPDF(force) {
+        if (!force && !(await ensureComplete('PDF erstellen')))
+            return;
         const btn = document.getElementById('pdfBtn');
         if (btn) {
             btn.disabled = true;
@@ -3636,7 +3778,7 @@
         try {
             if (!window.jspdf) {
                 toast('jsPDF lädt noch...', 'ok');
-                setTimeout(exportPDF, 1200);
+                setTimeout(() => exportPDF(true), 1200);
                 return;
             }
             const fd = collectFD();
@@ -3660,7 +3802,9 @@
             }
         }
     }
-    async function shareAssessment() {
+    async function shareAssessment(force) {
+        if (!force && !(await ensureComplete('teilen')))
+            return;
         const btn = document.getElementById('shareBtn');
         if (btn) {
             btn.disabled = true;
@@ -3669,7 +3813,7 @@
         try {
             if (!window.jspdf) {
                 toast('jsPDF lädt noch...', 'ok');
-                setTimeout(shareAssessment, 1200);
+                setTimeout(() => shareAssessment(true), 1200);
                 return;
             }
             const fd = collectFD();
