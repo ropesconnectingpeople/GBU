@@ -2357,12 +2357,8 @@
                 });
                 const d = await r.json();
                 if (d.address) {
-                    const a = d.address;
-                    const strasse = (a.road || '');
-                    const nr = (a.house_number || '');
-                    const ort = (a.city || a.town || a.village || a.suburb || '');
-                    const adresse = [strasse + (nr ? ' ' + nr : ''), ort].filter(Boolean).join(', ');
-                    document.getElementById('einsatzort').value = adresse || d.display_name;
+                    document.getElementById('einsatzort').value = shortAddress(d);
+                    refreshProgress();
                 } else {
                     toast('Adresse nicht gefunden', 'err');
                 }
@@ -2400,16 +2396,36 @@
                     list.classList.remove('show');
                     return;
                 }
-                list.innerHTML = data.map(d => `<div class="ac-item" onclick="selectPlace('${d.display_name.replace(/'/g, "\\'")}')">${d.display_name}</div>`).join('');
+                osmResults = data;
+                list.innerHTML = data.map((d, i) => `<div class="ac-item" onclick="selectPlace(${i})">${esc(shortAddress(d))}<div style="font-size:11px;color:var(--ct2)">${esc((d.display_name || '').split(',').slice(2, 5).join(',').trim())}</div></div>`).join('');
                 list.classList.add('show');
             } catch (e) {
                 list.classList.remove('show');
             }
         }, 400);
     }
-    function selectPlace(name) {
-        document.getElementById('einsatzort').value = name;
+    /* So kurz wie möglich, so lang wie nötig: Straße Nr, Stadt[, Land wenn nicht Deutschland] */
+    function shortAddress(d) {
+        const a = d.address || {};
+        const road = a.road || a.pedestrian || a.footway || a.path || a.cycleway || a.square || '';
+        const nr = a.house_number || '';
+        const city = a.city || a.town || a.village || a.municipality || a.hamlet || a.suburb || a.county || '';
+        const country = a.country || '';
+        const name = (d.name && d.name !== road && d.name !== city) ? d.name : '';
+        const first = (road && nr) ? road + ' ' + nr : (name || road || '');
+        const parts = [];
+        if (first) parts.push(first);
+        if (city && city !== first) parts.push(city);
+        if (country && !/^(deutschland|germany)$/i.test(country)) parts.push(country);
+        return parts.join(', ') || (d.display_name || '').split(',').slice(0, 2).join(',').trim();
+    }
+    let osmResults = [];
+    function selectPlace(i) {
+        const d = osmResults[i];
+        document.getElementById('einsatzort').value = d ? shortAddress(d) : '';
         document.getElementById('ac-list').classList.remove('show');
+        scheduleDraft();
+        refreshProgress();
     }
     document.addEventListener('click', e => {
         if (!e.target.closest('.ac-wrap'))
@@ -2984,7 +3000,10 @@
             if (!v('aufseher')) m.push('Aufsichtsführender');
             if (!on('[data-etyp]') && !v('einsatzTypSonstiges')) m.push('Einsatztyp');
         } else if (n === 1) {
-            if (![...document.querySelectorAll('#personRows .pname')].some(i => i.value.trim())) m.push('mindestens eine Person');
+            const named = [...document.querySelectorAll('#personRows .pname')].filter(i => i.value.trim()).length;
+            const skt = !!document.querySelector('[data-etyp="SKT"].on');
+            if (skt && named < 2) m.push('mindestens zwei Personen (Seilklettertechnik – nie allein)');
+            else if (named < 1) m.push('mindestens eine Person');
         } else if (n === 2) {
             if (!on('#s2 .ci') && !v('arbeitenSonstiges')) m.push('mindestens eine Tätigkeit oder Ausrüstung');
         } else if (n === 3) {
@@ -3489,17 +3508,19 @@
     }
     /* Kurzer, share-sicherer Dateiname: keine Kommas/Umlaute/Überlänge,
        sonst scheitert z.B. die WhatsApp-Share-Extension auf iOS */
+    /* Dateiname: GBU-Adresse-Datum (ASCII, Bindestriche – teilbar über jeden Messenger) */
+    function pdfBaseName(fd) {
+        const ort = (fd.einsatzort || 'Einsatz')
+            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue').replace(/ß/g, 'ss')
+            .replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'Einsatz';
+        const dat = fd.datum || new Date().toISOString().slice(0, 10);
+        return 'GBU-' + ort + '-' + dat;
+    }
     function pdfFileName(fd) {
-        let ort = (fd.einsatzort || '').split(',').slice(0, 2).join(' ').trim();
-        ort = ort.toLowerCase()
-            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
-        const dat = (fd.datum || '').replace(/-/g, '');
-        return ['gbu', ort, dat].filter(Boolean).join('_') + '.pdf';
+        return pdfBaseName(fd) + '.pdf';
     }
     function shareText(fd) {
-        const ort = (fd.einsatzort || '').split(',').slice(0, 2).join(',').trim();
-        return 'Baumsicherheitsbeurteilung' + (ort ? ' – ' + ort : '');
+        return pdfBaseName(fd);
     }
     /* ===== Datensicherung: Export/Import aller Beurteilungen + Erinnerung ===== */
     const BACKUP_COUNT = 10, BACKUP_DAYS = 7;
@@ -3655,7 +3676,7 @@
                 const fd = a.formData || {};
                 const datum = (fd.datum || a.datum || (a.createdAt || '').slice(0, 10) || 'ohne-datum');
                 const month = datum.slice(0, 7) || 'ohne-datum';
-                const fn = datum + '_' + safeName(fd.einsatzort || a.einsatzort, 40) + '.pdf';
+                const fn = pdfFileName({ einsatzort: fd.einsatzort || a.einsatzort, datum });
                 const doc = await buildPDF(fd, a.photos || []);
                 root.folder(month).file(fn, doc.output('blob'));
                 csv.push([
@@ -3761,7 +3782,7 @@
             directory: 'CACHE'
         });
         await P.Share.share({
-            title: 'Baumsicherheitsbeurteilung',
+            title: fn.replace(/\.pdf$/, ''),
             text: text,
             url: res.uri,
             dialogTitle: 'PDF speichern oder teilen'
@@ -3834,12 +3855,12 @@
                    schlägt sonst beim Senden gern fehl */
                 await navigator.share({
                     files: [file],
-                    title: 'Baumsicherheitsbeurteilung'
+                    title: fn.replace(/\.pdf$/, '')
                 });
             }
             else if (navigator.share) {
                 await navigator.share({
-                    title: 'Baumsicherheitsbeurteilung',
+                    title: shareText(fd),
                     text: shareText(fd)
                 });
             }
