@@ -1970,6 +1970,12 @@
                         </div>
                         <span class="clbl">Abgestorbene Rinde</span>
                     </div>
+                    <div class="ci" data-key="bewuchs_stamm" onclick="tc(this)">
+                        <div class="cbox">
+                            <i class="ti ti-check cicon"></i>
+                        </div>
+                        <span class="clbl">Baumfremder Bewuchs (Efeu etc.)</span>
+                    </div>
                 </div>
                 <label class="fl">Baumkrone</label>
                 <div class="cg">
@@ -2296,6 +2302,7 @@
         baumchirurgie: 'Baumchirurgie',
         wunden: 'Wunden',
         tote_rinde: 'Abgest. Rinde',
+        bewuchs_stamm: 'Baumfremder Bewuchs (Efeu etc.)',
         vitalitaet: 'Vitalität auffällig',
         totholz_krone: 'Totholz',
         defekt_krone: 'Defektsymptome (Krone)',
@@ -3395,6 +3402,8 @@
             k: 'wunden'
         }, {
             k: 'tote_rinde'
+        }, {
+            k: 'bewuchs_stamm'
         }]);
         sec('BAUMKRONE');
         chk([{
