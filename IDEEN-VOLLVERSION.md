@@ -14,6 +14,20 @@ Idee: „Folgetag"-Funktion im Archiv
 - Verkettung der Einträge (Tag 2 von 5), PDF-Hinweis „Fortführung vom TT.MM."
 - Archiv gruppiert zusammengehörige Tage
 
+## Notfallkontakt je Person (Idee: Michael Ort, Sauerland Baumpflege, Juni 2026)
+Anwendungsfall: Unfall auf der Baustelle – wer ruft wen an? Bei eigenen Leuten
+hat das Büro die Daten, bei wechselnden Subunternehmern hat sie niemand.
+
+Umsetzung so klein wie möglich, kein eigenes Modul:
+- Schritt Personal: je Person optional „+ Notfallkontakt" (Name / Telefon),
+  standardmäßig eingeklappt, Formular sieht ohne Nutzung exakt gleich aus
+- zählt NICHT zur Vollständigkeitsprüfung
+- Team-Speicher merkt sich die Angabe pro Person (einmal tippen)
+- PDF: klein unter dem Namen im Personal-Block, nur wenn ausgefüllt
+- kein Sync, keine separate Kontaktliste, kein Telefonbuchzugriff
+- Datenschutz: Daten Dritter, bleiben lokal, ein Satz in der Datenschutzerklärung
+- Release-Notes: Michael als Ideengeber nennen
+
 ## Weitere gemerkte Themen
 - Formular-Definition vom Code trennen (Länderpakete als Daten)
 - Österreich-Paket (ASchG/Evaluierung, DOK-VO-Pflichtfelder, AUVA-Bezug)
